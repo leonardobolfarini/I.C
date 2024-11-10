@@ -1,5 +1,7 @@
 *.csv
 *.txt
+!requirements.txt
 *.pptx
 *.odp
 *.pdf
+venv/
