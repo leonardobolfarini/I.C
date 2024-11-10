@@ -4,4 +4,5 @@
 *.pptx
 *.odp
 *.pdf
-venv/
+.venv/
+apresentacoes/
