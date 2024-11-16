@@ -3,9 +3,11 @@ import os
 import zipfile
 import pandas as pd
 from unidecode import unidecode
-from flask import Flask, request, send_file
+from flask import Flask, make_response, request, send_file
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'outputs'
@@ -57,20 +59,20 @@ def process_wos_data(df, wos_path_txt, wos_path_csv):
     df.to_csv(wos_path_txt, sep='\t', index=False)
 
     data = []
-    with open(wos_path_txt) as txt_wos_file:
-        for i, row in enumerate(csv.reader(txt_wos_file, delimiter='\t', quotechar='"')):
+    with open(wos_path_txt) as txt_wosFile:
+        for i, row in enumerate(csv.reader(txt_wosFile, delimiter='\t', quotechar='"')):
             if i > 0:
                 data.append(row)
     
-    with open(wos_path_csv, 'w', newline='') as csv_wos_file:
-        csv_writer = csv.writer(csv_wos_file, delimiter=',', quoting=csv.QUOTE_ALL)
+    with open(wos_path_csv, 'w', newline='') as csv_wosFile:
+        csv_writer = csv.writer(csv_wosFile, delimiter=',', quoting=csv.QUOTE_ALL)
         csv_writer.writerow(header_csv)
         csv_writer.writerows(data)
 
 def process_scopus_data(scopus_path_csv, scopus_path_txt):
     data = []
-    with open(scopus_path_csv) as csv_scopus_file:
-        for i, row in enumerate(csv.reader(csv_scopus_file, delimiter=',')):
+    with open(scopus_path_csv) as csv_scopusFile:
+        for i, row in enumerate(csv.reader(csv_scopusFile, delimiter=',')):
             if i > 0:
                 data.append(row)
     with open(scopus_path_txt, 'w', newline='') as scopus_txt:
@@ -134,23 +136,30 @@ def merge_and_process_files_in_txt(scopus_path, wos_path, output_path):
     df_without_duplicates = df.drop_duplicates(subset=["AU", "TI", "SO"], keep='first')
     df_without_duplicates.to_csv(output_path, sep='\t', index=False)
     
-@app.route('/process', methods=['Post'])
+@app.route('/process', methods=['Options', 'Post'])
 def process_files():
-    if 'scopus_file' not in request.files or 'wos_file' not in request.files:
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        return response
+    
+    if 'scopusFile' not in request.files or 'wosFile' not in request.files:
         return "Arquivos de entrada necessários.", 400
 
-    scopus_file = request.files['scopus_file']
-    wos_file = request.files['wos_file']
+    scopusFile = request.files['scopusFile']
+    wosFile = request.files['wosFile']
 
-    scopus_path_csv = os.path.join(UPLOAD_FOLDER, 'scopus_file.csv')
-    scopus_path_txt = os.path.join(UPLOAD_FOLDER, 'scopus_file.txt')
-    wos_path_txt = os.path.join(UPLOAD_FOLDER, 'wos_file.txt')
-    wos_path_csv = os.path.join(UPLOAD_FOLDER, 'wos_file.csv')
+    scopus_path_csv = os.path.join(UPLOAD_FOLDER, 'scopusFile.csv')
+    scopus_path_txt = os.path.join(UPLOAD_FOLDER, 'scopusFile.txt')
+    wos_path_txt = os.path.join(UPLOAD_FOLDER, 'wosFile.txt')
+    wos_path_csv = os.path.join(UPLOAD_FOLDER, 'wosFile.csv')
     output_csv_path = os.path.join(OUTPUT_FOLDER, 'all_in_one.csv')
     output_txt_path = os.path.join(OUTPUT_FOLDER, 'all_in_one.txt')
 
-    scopus_file.save(scopus_path_csv)
-    wos_file.save(wos_path_txt)
+    scopusFile.save(scopus_path_csv)
+    wosFile.save(wos_path_txt)
 
     wos_df = pd.read_csv(wos_path_txt, sep='\t')
     wos_df = remove_columns(wos_df, columns_to_remove_txt)
@@ -165,14 +174,12 @@ def process_files():
     merge_and_process_files_in_csv(scopus_path_csv, wos_path_csv, output_csv_path)
     merge_and_process_files_in_txt(scopus_path_txt, wos_path_txt, output_txt_path)
 
-    return send_file(output_csv_path, as_attachment=True, download_name='all_in_one.csv')
-'''
     zip_path = os.path.join(OUTPUT_FOLDER, 'resultados.zip')
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         zipf.write(output_csv_path, arcname='all_in_one.csv')
         zipf.write(output_txt_path, arcname='all_in_one.txt')
 
-    return send_file(zip_path, as_attachment=True)'''
+    return send_file(zip_path, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
