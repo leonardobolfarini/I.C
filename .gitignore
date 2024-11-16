@@ -1,5 +1,6 @@
 *.csv
 *.txt
+*.zip
 !requirements.txt
 *.pptx
 *.odp
