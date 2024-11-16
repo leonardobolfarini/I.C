@@ -7,7 +7,7 @@ export const FilesContainer = styled('main', {
   padding: '1rem',
 })
 
-export const FilesToSend = styled('div', {
+const ContainersBase = styled('div', {
   display: 'flex',
   flexDirection: 'column',
 
@@ -16,8 +16,10 @@ export const FilesToSend = styled('div', {
   fontSize: '1.5rem',
   padding: '2rem',
   borderRadius: 6,
+})
 
-  div: {
+export const FilesToSend = styled(ContainersBase, {
+  label: {
     display: 'flex',
     flexDirection: 'row',
     gap: '25px',
@@ -25,10 +27,17 @@ export const FilesToSend = styled('div', {
   },
 })
 
-export const FilesToDownload = styled('div', {
-  background: '$cyan300',
+export const FilesToDownload = styled(ContainersBase, {
+  div: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '25px',
+    alignItems: 'center',
+
+    a: {
+      color: '$black',
+    },
+  },
 })
 
-export const FilesView = styled('div', {
-  background: '$cyan300',
-})
+export const FilesView = styled('div', {})
