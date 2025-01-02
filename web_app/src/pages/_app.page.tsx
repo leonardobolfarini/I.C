@@ -1,6 +1,6 @@
 import { globalStyles } from '@/src/styles/global'
+import { QueryClientProvider } from '@tanstack/react-query'
 import type { AppProps } from 'next/app'
-import { QueryClientProvider } from 'react-query'
 import { queryClient } from '../lib/react-query'
 
 globalStyles()
