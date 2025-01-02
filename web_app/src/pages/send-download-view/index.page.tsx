@@ -2,6 +2,7 @@ import {
   FilesContainer,
   FilesToDownload,
   FilesToSend,
+  FilesToSendContainer,
   FilesView,
 } from './styles'
 import { Button } from '../../components/Button'
@@ -50,20 +51,10 @@ interface DownloadUrlsTypes {
   txtUrl: string | null
 }
 
-interface FilesNameTypes {
-  scopusFile: string | null
-  wosFile: string | null
-}
-
 export default function SendDownloadView() {
   const [downloadUrls, setDownloadUrls] = useState<DownloadUrlsTypes>({
     csvUrl: null,
     txtUrl: null,
-  })
-
-  const [filesName, setFilesName] = useState<FilesNameTypes>({
-    scopusFile: null,
-    wosFile: null,
   })
 
   const {
@@ -99,19 +90,12 @@ export default function SendDownloadView() {
           const url = URL.createObjectURL(fileBlob)
           if (fileName.endsWith('.csv')) {
             extractedFiles.csvUrl = url
-            setFilesName({
-              scopusFile: fileName,
-              wosFile: filesName.wosFile,
-            })
           } else if (fileName.endsWith('.txt')) {
             extractedFiles.txtUrl = url
-            setFilesName({
-              scopusFile: filesName.scopusFile,
-              wosFile: fileName,
-            })
           }
         }
       }
+
       setDownloadUrls(extractedFiles)
     } catch {
       alert('Ocorreu um erro.')
@@ -120,36 +104,34 @@ export default function SendDownloadView() {
 
   return (
     <FilesContainer>
-      <FilesToSend>
-        <form onSubmit={handleSubmit(handleSendFiles)}>
+      <FilesToSend as="form" onSubmit={handleSubmit(handleSendFiles)}>
+        <FilesToSendContainer>
           <p>Scopus(.csv): </p>
           <FileInput
             accept=".csv"
-            {...register('scopusFile')}
             idhtml="scopusFile"
-            filename={filesName.scopusFile}
+            {...register('scopusFile')}
           />
           <span>
             {errors.scopusFile ? String(errors.scopusFile.message) : ''}
           </span>
+        </FilesToSendContainer>
+
+        <FilesToSendContainer>
           <p>WoS(.txt): </p>
-          <FileInput
-            accept=".txt"
-            {...register('wosFile')}
-            idhtml="wosFile"
-            filename={filesName.wosFile}
-          />
+          <FileInput accept=".txt" idhtml="wosFile" {...register('wosFile')} />
           <span>{errors.wosFile ? String(errors.wosFile.message) : ''}</span>
-          <Button
-            colorButton={'white'}
-            type="submit"
-            style={{ marginLeft: 'auto', marginTop: '0.5rem' }}
-            disabled={isProcessing}
-          >
-            Enviar
-            <PaperPlaneRight weight="bold" height={20} width={20} />
-          </Button>
-        </form>
+        </FilesToSendContainer>
+
+        <Button
+          colorButton={'white'}
+          type="submit"
+          style={{ marginLeft: 'auto', marginTop: '0.5rem' }}
+          disabled={isProcessing}
+        >
+          Enviar
+          <PaperPlaneRight weight="bold" height={20} width={20} />
+        </Button>
       </FilesToSend>
       <FilesToDownload>
         <div>
