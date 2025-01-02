@@ -4,16 +4,16 @@ import {
   FilesToSend,
   FilesView,
 } from './styles'
-import { Button } from '../components/Button'
+import { Button } from '../../components/Button'
 import { PaperPlaneRight } from '@phosphor-icons/react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FileInput, Label } from 'flowbite-react'
-import { useMutation } from 'react-query'
 import { SendFiles } from '@/src/api/send-files'
 import { useState } from 'react'
+import { z } from 'zod'
 import JSZip from 'jszip'
+import { FileInput } from '@/src/components/FileInput'
+import { useMutation } from '@tanstack/react-query'
 
 const formFilesSchema = z.object({
   scopusFile: z
@@ -45,10 +45,25 @@ const formFilesSchema = z.object({
 
 export type FormFilesProps = z.infer<typeof formFilesSchema>
 
+interface DownloadUrlsTypes {
+  csvUrl: string | null
+  txtUrl: string | null
+}
+
+interface FilesNameTypes {
+  scopusFile: string | null
+  wosFile: string | null
+}
+
 export default function SendDownloadView() {
-  const [downloadUrls, setDownloadUrls] = useState({
+  const [downloadUrls, setDownloadUrls] = useState<DownloadUrlsTypes>({
     csvUrl: null,
     txtUrl: null,
+  })
+
+  const [filesName, setFilesName] = useState<FilesNameTypes>({
+    scopusFile: null,
+    wosFile: null,
   })
 
   const {
@@ -59,20 +74,23 @@ export default function SendDownloadView() {
     resolver: zodResolver(formFilesSchema),
   })
 
-  const { mutateAsync: SendFilesFn } = useMutation({
+  const { mutateAsync: sendFilesFn } = useMutation({
     mutationFn: SendFiles,
   })
 
   async function handleSendFiles(files: FormFilesProps) {
     try {
-      const formData = new FormData()
-      formData.append('scopusFile', files.scopusFile)
-      formData.append('wosFile', files.wosFile)
+      const response = await sendFilesFn({
+        scopusFile: files.scopusFile,
+        wosFile: files.wosFile,
+      })
 
-      const response = await SendFilesFn(formData)
       const blob = new Blob([response], { type: 'application/zip' })
       const zip = await JSZip.loadAsync(blob)
-      const extractedFiles = {}
+      const extractedFiles: DownloadUrlsTypes = {
+        csvUrl: null,
+        txtUrl: null,
+      }
 
       for (const fileName of Object.keys(zip.files)) {
         const file = zip.files[fileName]
@@ -81,8 +99,16 @@ export default function SendDownloadView() {
           const url = URL.createObjectURL(fileBlob)
           if (fileName.endsWith('.csv')) {
             extractedFiles.csvUrl = url
+            setFilesName({
+              scopusFile: fileName,
+              wosFile: filesName.wosFile,
+            })
           } else if (fileName.endsWith('.txt')) {
             extractedFiles.txtUrl = url
+            setFilesName({
+              scopusFile: filesName.scopusFile,
+              wosFile: fileName,
+            })
           }
         }
       }
@@ -96,18 +122,24 @@ export default function SendDownloadView() {
     <FilesContainer>
       <FilesToSend>
         <form onSubmit={handleSubmit(handleSendFiles)}>
-          <Label>
-            <p>Scopus(.csv): </p>
-            <FileInput accept=".csv" {...register('scopusFile')} />
-            <span>
-              {errors.scopusFile ? String(errors.scopusFile.message) : ''}
-            </span>
-          </Label>
-          <Label>
-            <p>WoS(.txt): </p>
-            <FileInput accept=".txt" {...register('wosFile')} />
-            <span>{errors.wosFile ? String(errors.wosFile.message) : ''}</span>
-          </Label>
+          <p>Scopus(.csv): </p>
+          <FileInput
+            accept=".csv"
+            {...register('scopusFile')}
+            idhtml="scopusFile"
+            filename={filesName.scopusFile}
+          />
+          <span>
+            {errors.scopusFile ? String(errors.scopusFile.message) : ''}
+          </span>
+          <p>WoS(.txt): </p>
+          <FileInput
+            accept=".txt"
+            {...register('wosFile')}
+            idhtml="wosFile"
+            filename={filesName.wosFile}
+          />
+          <span>{errors.wosFile ? String(errors.wosFile.message) : ''}</span>
           <Button
             colorButton={'white'}
             type="submit"
