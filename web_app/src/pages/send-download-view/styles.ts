@@ -18,13 +18,12 @@ const ContainersBase = styled('div', {
   borderRadius: 6,
 })
 
-export const FilesToSend = styled(ContainersBase, {
-  label: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '25px',
-    alignItems: 'center',
-  },
+export const FilesToSend = styled(ContainersBase, {})
+
+export const FilesToSendContainer = styled('div', {
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
 })
 
 export const FilesToDownload = styled(ContainersBase, {
