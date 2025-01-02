@@ -29,13 +29,12 @@ export const FilesToSend = styled(ContainersBase, {
 
 export const FilesToDownload = styled(ContainersBase, {
   div: {
-    display: 'flex',
-    flexDirection: 'row',
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
     gap: '25px',
     alignItems: 'center',
-
     a: {
-      color: '$black',
+      color: '$white',
     },
   },
 })
