@@ -2,7 +2,7 @@ import Image from 'next/image'
 import ScopusWosImage from '../../assets/scopus_and_wos.jpeg'
 import { HomeContainer, HomeLeftInfos, HomeRightInfos } from './styles'
 import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
-import { Button } from '../components/Button'
+import { Button } from '../../components/Button'
 import { useRouter } from 'next/router'
 
 export default function Home() {
