@@ -14,6 +14,11 @@ export const Button = styled('button', {
   cursor: 'pointer',
   transition: 'background 0.2s, color 0.2s',
 
+  '&:disabled': {
+    cursor: 'not-allowed',
+    opacity: 0.5,
+  },
+
   variants: {
     colorButton: {
       cyan: {
