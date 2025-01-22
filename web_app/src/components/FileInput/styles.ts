@@ -6,6 +6,7 @@ export const FileInputLabel = styled('label', {
   justifyContent: 'flex-start',
   padding: '6px 12px',
 
+  gap: '0.25rem',
   fontWeight: 'bold',
   cursor: 'default',
 
