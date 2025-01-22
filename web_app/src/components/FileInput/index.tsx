@@ -30,7 +30,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
         <FileInputStyle
           id={idhtml}
           type="file"
-          onChange={handleFileChangeName}
+          onChangeCapture={handleFileChangeName}
           {...props}
           ref={ref}
         />
