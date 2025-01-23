@@ -1,18 +1,6 @@
 import csv
-import os
-import zipfile
 import pandas as pd
 from unidecode import unidecode
-from flask import Flask, make_response, request, send_file
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
-
-UPLOAD_FOLDER = 'uploads'
-OUTPUT_FOLDER = 'outputs'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 header_csv = [
     "Authors", "Title", "Year", "Source title", "DOI", "Abstract", "Author Keywords"
@@ -136,50 +124,3 @@ def merge_and_process_files_in_txt(scopus_path, wos_path, output_path):
     df_without_duplicates = df.drop_duplicates(subset=["AU", "TI", "SO"], keep='first')
     df_without_duplicates.to_csv(output_path, sep='\t', index=False)
     
-@app.route('/process', methods=['Options', 'Post'])
-def process_files():
-    if request.method == 'OPTIONS':
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-        return response
-    
-    if 'scopusFile' not in request.files or 'wosFile' not in request.files:
-        return "Arquivos de entrada necessários.", 400
-
-    scopusFile = request.files['scopusFile']
-    wosFile = request.files['wosFile']
-
-    scopus_path_csv = os.path.join(UPLOAD_FOLDER, 'scopusFile.csv')
-    scopus_path_txt = os.path.join(UPLOAD_FOLDER, 'scopusFile.txt')
-    wos_path_txt = os.path.join(UPLOAD_FOLDER, 'wosFile.txt')
-    wos_path_csv = os.path.join(UPLOAD_FOLDER, 'wosFile.csv')
-    output_csv_path = os.path.join(OUTPUT_FOLDER, 'all_in_one.csv')
-    output_txt_path = os.path.join(OUTPUT_FOLDER, 'all_in_one.txt')
-
-    scopusFile.save(scopus_path_csv)
-    wosFile.save(wos_path_txt)
-
-    wos_df = pd.read_csv(wos_path_txt, sep='\t')
-    wos_df = remove_columns(wos_df, columns_to_remove_txt)
-    wos_df.to_csv(wos_path_txt, sep='\t', index=False)
-    wos_df = process_wos_data(wos_df, wos_path_txt, wos_path_csv)
-
-    scopus_df = pd.read_csv(scopus_path_csv, sep=',')
-    scopus_df = remove_columns(scopus_df, columns_to_remove_csv)
-    scopus_df.to_csv(scopus_path_csv, sep=',', quotechar='"', quoting=csv.QUOTE_ALL, index=False)
-    scopus_df = process_scopus_data(scopus_path_csv, scopus_path_txt)
-    
-    merge_and_process_files_in_csv(scopus_path_csv, wos_path_csv, output_csv_path)
-    merge_and_process_files_in_txt(scopus_path_txt, wos_path_txt, output_txt_path)
-
-    zip_path = os.path.join(OUTPUT_FOLDER, 'resultados.zip')
-    with zipfile.ZipFile(zip_path, 'w') as zipf:
-        zipf.write(output_csv_path, arcname='all_in_one.csv')
-        zipf.write(output_txt_path, arcname='all_in_one.txt')
-
-    return send_file(zip_path, as_attachment=True)
-
-if __name__ == "__main__":
-    app.run(debug=True)
