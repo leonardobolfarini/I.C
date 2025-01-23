@@ -1,10 +1,15 @@
+# File Extensions
 *.csv
 *.txt
 *.zip
-!requirements.txt
 *.pptx
 *.odp
 *.pdf
+
+!requirements.txt
 .venv/
+__pycache__
+
 apresentacoes/
+
 .vscode/
