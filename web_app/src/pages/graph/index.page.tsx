@@ -1,50 +1,146 @@
+import { GetGraphFormat } from '@/src/api/get-graph-format'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import {
+  FileToSend,
+  FileToSendContainer,
+  GraphContainer,
+  PageContainer,
+} from './styles'
+import { FileInput } from '@/src/components/FileInput'
+import { Button } from '@/src/components/Button'
+import { PaperPlaneRight } from '@phosphor-icons/react/dist/ssr'
+
+interface GraphElementFormat {
+  data: {
+    id?: string
+    label?: string
+    source?: string
+    target?: string
+  }
+}
+
+const getGraphFormatFile = z.object({
+  graphFile: z
+    .any()
+    .refine(
+      (files) =>
+        files instanceof FileList &&
+        files.length > 0 &&
+        files[0].name.endsWith('.csv' || 'txt'),
+      {
+        message: 'Selecione um arquivo .csv para Scopus.',
+      },
+    )
+    .transform((files) => files[0]),
+})
+
+type GetGraphFormatFile = z.infer<typeof getGraphFormatFile>
 
 export default function Graph() {
-  const [width, setWith] = useState('100%')
-  const [height, setHeight] = useState('400px')
-  const [graphData, setGraphData] = useState([
-    // Node format
-    { data: { id: '1', label: 'Node 1' } },
-    { data: { id: '2', label: 'Node 2' } },
-    { data: { id: '3', label: 'Node 3' } },
-    { data: { id: '4', label: 'Node 4' } },
-    { data: { id: '5', label: 'Node 5' } },
-    { data: { id: '6', label: 'Node 6' } },
-    { data: { id: '7', label: 'Node 7' } },
-    { data: { id: '8', label: 'Node 8' } }, // Edge format
-    { data: { source: '1', target: '2' } },
-    { data: { source: '1', target: '3' } },
-    { data: { source: '4', target: '5' } },
-    { data: { source: '6', target: '8' } },
-  ])
+  const [graphData, setGraphData] = useState<GraphElementFormat[] | null>(null)
+
+  const { mutateAsync: GetGraphFormatFn } = useMutation({
+    mutationFn: GetGraphFormat,
+  })
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting: isProcessing },
+  } = useForm<GetGraphFormatFile>({
+    resolver: zodResolver(getGraphFormatFile),
+  })
+
+  async function handleSendGraphFileToFormat({
+    graphFile,
+  }: GetGraphFormatFile) {
+    const response = await GetGraphFormatFn({
+      graphFile,
+    })
+
+    setGraphData([...response.nodes, ...response.edges])
+  }
   return (
-    <>
-      <div>
-        <h1>My Cytoscape example</h1>
-        <div
-          style={{
-            border: '1px solid',
-            backgroundColor: '#f5f6fe',
-          }}
+    <PageContainer>
+      {!graphData ? (
+        <FileToSend
+          as="form"
+          onSubmit={handleSubmit(handleSendGraphFileToFormat)}
         >
+          <FileToSendContainer>
+            <p>Arquivo: </p>
+            <FileInput
+              accept=".csv, .txt"
+              idhtml="graphFile')}
+          />"
+              {...register('graphFile')}
+            />
+            <span>
+              {errors.graphFile ? String(errors.graphFile.message) : ''}
+            </span>
+          </FileToSendContainer>
+
+          <Button
+            colorButton={'white'}
+            type="submit"
+            style={{ marginLeft: 'auto', marginTop: '0.5rem' }}
+            disabled={isProcessing}
+          >
+            Enviar
+            <PaperPlaneRight weight="bold" height={20} width={20} />
+          </Button>
+        </FileToSend>
+      ) : (
+        <GraphContainer>
           <CytoscapeComponent
             elements={graphData}
-            style={{ width, height }}
+            style={{ width: '100%', height: '100vh' }}
             layout={{
-              name: 'breadthfirst',
+              name: 'grid',
               fit: true,
-              directed: true,
-              padding: 50,
-              animate: true,
-              animationDuration: 1000,
+              padding: 10,
               avoidOverlap: true,
-              nodeDimensionsIncludeLabels: false,
+              nodeDimensionsIncludeLabels: true,
             }}
+            hideEdgesOnViewport={true}
+            textureOnViewport={true}
+            pixelRatio={1}
+            styleEnabled={true}
+            stylesheet={[
+              {
+                selector: 'node',
+                style: {
+                  backgroundColor: '#4d87f5',
+                  width: 30,
+                  height: 30,
+                  label: 'data(label)',
+                  'text-valign': 'center',
+                  'text-halign': 'center',
+                  'text-outline-color': '#555',
+                  'text-outline-width': '1px',
+                  'overlay-padding': '3px',
+                  'z-index': '10',
+                },
+              },
+              {
+                selector: 'edge',
+                style: {
+                  width: 2,
+                  'line-color': '#AAD8FF',
+                  'target-arrow-shape': 'none',
+                  'curve-style': 'haystack',
+                  opacity: 1,
+                },
+              },
+            ]}
           />
-        </div>
-      </div>
-    </>
+        </GraphContainer>
+      )}
+    </PageContainer>
   )
 }
