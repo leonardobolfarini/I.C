@@ -3,7 +3,8 @@ import {
   FilesToDownload,
   FilesToSend,
   FilesToSendContainer,
-  FilesView,
+  GraphCard,
+  MetricsView,
 } from './styles'
 import { Button } from '../../components/Button'
 import { PaperPlaneRight } from '@phosphor-icons/react'
@@ -15,6 +16,8 @@ import { z } from 'zod'
 import JSZip from 'jszip'
 import { FileInput } from '@/src/components/FileInput'
 import { useMutation } from '@tanstack/react-query'
+import Image from 'next/image'
+import Link from 'next/link'
 
 const formFilesSchema = z.object({
   scopusFile: z
@@ -155,7 +158,20 @@ export default function SendDownloadView() {
           )}
         </div>
       </FilesToDownload>
-      <FilesView></FilesView>
+      <MetricsView>
+        <Link href="/graph" style={{ textDecoration: 'none' }}>
+          <GraphCard>
+            <h1>Visualização de Grafo</h1>
+            <Image
+              src="/GraphImage.png"
+              width={500}
+              height={500}
+              style={{ borderRadius: '8px' }}
+              alt=""
+            />
+          </GraphCard>
+        </Link>
+      </MetricsView>
     </FilesContainer>
   )
 }
