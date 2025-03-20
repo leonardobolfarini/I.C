@@ -3,6 +3,7 @@ import { styled } from '@/src/styles/stitches'
 export const PageContainer = styled('div', {
   gap: '0.5rem',
   padding: '1rem',
+  background: '#fff',
 })
 
 export const FileToSend = styled('div', {
@@ -25,4 +26,6 @@ export const FileToSendContainer = styled('div', {
 
 export const GraphContainer = styled('div', {
   marginTop: '1rem',
+  width: '100%',
+  height: '100%',
 })
