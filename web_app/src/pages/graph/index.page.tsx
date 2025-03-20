@@ -2,7 +2,6 @@ import { GetGraphFormat } from '@/src/api/get-graph-format'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import React, { useState } from 'react'
-import CytoscapeComponent from 'react-cytoscapejs'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import {
@@ -14,13 +13,28 @@ import {
 import { FileInput } from '@/src/components/FileInput'
 import { Button } from '@/src/components/Button'
 import { PaperPlaneRight } from '@phosphor-icons/react/dist/ssr'
+import { SigmaRender } from './components/SigmaRender'
 
-interface GraphElementFormat {
+export interface GraphElementFormat {
   data: {
     id?: string
     label?: string
     source?: string
     target?: string
+  }
+}
+
+export interface GraphNodesFormat {
+  data: {
+    id: string
+    label: string
+  }
+}
+
+export interface GraphEdgesFormat {
+  data: {
+    source: string
+    target: string
   }
 }
 
@@ -43,6 +57,8 @@ type GetGraphFormatFile = z.infer<typeof getGraphFormatFile>
 
 export default function Graph() {
   const [graphData, setGraphData] = useState<GraphElementFormat[] | null>(null)
+  const [nodes, setNodes] = useState<GraphNodesFormat[] | null>(null)
+  const [edges, setEdges] = useState<GraphEdgesFormat[] | null>(null)
 
   const { mutateAsync: GetGraphFormatFn } = useMutation({
     mutationFn: GetGraphFormat,
@@ -63,11 +79,14 @@ export default function Graph() {
       graphFile,
     })
 
+    setNodes(response.nodes)
+    setEdges(response.edges)
     setGraphData([...response.nodes, ...response.edges])
   }
+
   return (
     <PageContainer>
-      {!graphData ? (
+      {!graphData || !edges || !nodes ? (
         <FileToSend
           as="form"
           onSubmit={handleSubmit(handleSendGraphFileToFormat)}
@@ -97,48 +116,7 @@ export default function Graph() {
         </FileToSend>
       ) : (
         <GraphContainer>
-          <CytoscapeComponent
-            elements={graphData}
-            style={{ width: '100%', height: '100vh' }}
-            layout={{
-              name: 'grid',
-              fit: true,
-              padding: 10,
-              avoidOverlap: true,
-              nodeDimensionsIncludeLabels: true,
-            }}
-            hideEdgesOnViewport={true}
-            textureOnViewport={true}
-            pixelRatio={1}
-            styleEnabled={true}
-            stylesheet={[
-              {
-                selector: 'node',
-                style: {
-                  backgroundColor: '#4d87f5',
-                  width: 30,
-                  height: 30,
-                  label: 'data(label)',
-                  'text-valign': 'center',
-                  'text-halign': 'center',
-                  'text-outline-color': '#555',
-                  'text-outline-width': '1px',
-                  'overlay-padding': '3px',
-                  'z-index': '10',
-                },
-              },
-              {
-                selector: 'edge',
-                style: {
-                  width: 2,
-                  'line-color': '#AAD8FF',
-                  'target-arrow-shape': 'none',
-                  'curve-style': 'haystack',
-                  opacity: 1,
-                },
-              },
-            ]}
-          />
+          <SigmaRender graphEdges={edges} graphNodes={nodes} />
         </GraphContainer>
       )}
     </PageContainer>
