@@ -38,4 +38,13 @@ export const FilesToDownload = styled(ContainersBase, {
   },
 })
 
-export const FilesView = styled('div', {})
+export const MetricsView = styled('div', {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+})
+
+export const GraphCard = styled(ContainersBase, {
+  h1: {
+    textAlign: 'center',
+  },
+})
