@@ -4,6 +4,7 @@ import zipfile
 import pandas as pd
 import utils.analysis_functions as analysis
 import utils.graph as graph
+import utils.charts as charts
 from flask import Flask, make_response, request, send_file
 from flask_cors import CORS
 
@@ -82,6 +83,28 @@ def get_graph_format():
     graph_data = graph.graph_formatter(graph_file_path)
     
     return graph_data
+
+@app.route('/chart_bar', methods=['Options', 'Post'])
+def get_chart_format():
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        return response
+
+    if 'chartBarFile' not in request.files:
+        return "Arquivos de entrada necessários.", 400
+
+    chart_bar_file = request.files['chartBarFile']
+    
+    chart_bar_file_path = os.path.join(UPLOAD_FOLDER, 'chartBarFile.csv')
+    
+    chart_bar_file.save(chart_bar_file_path)
+    
+    chart_data = charts.chart_bar_formatter(chart_bar_file_path)
+    
+    return chart_data
 
 if __name__ == "__main__":
     app.run(debug=True)
