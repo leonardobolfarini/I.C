@@ -64,6 +64,8 @@ export default function Charts() {
     setSourcesCount(sources)
   }
 
+  console.log(authorsCount)
+
   return (
     <div className="max-h-[1000px] max-w-[1000px]">
       <form onSubmit={handleSubmit(handleGetChartBarFormat)}>
@@ -82,12 +84,47 @@ export default function Charts() {
       </form>
       {keywordsCount ? (
         <ChartBarComponent
-          dataListName="Keywords"
+          dataListName="10 palavras-chaves mais citadas"
           chartBarData={
-            keywordsCount?.keywords?.map((keyword) => ({
-              name: keyword.keyword,
-              count: keyword.count,
-            })) || []
+            keywordsCount?.keywords
+              ?.sort((a, b) => b.count - a.count)
+              .slice(0, 10)
+              .map((keyword) => ({
+                name: keyword.keyword,
+                count: keyword.count,
+              })) || []
+          }
+        />
+      ) : (
+        <h1>ChartBar</h1>
+      )}
+      {authorsCount ? (
+        <ChartBarComponent
+          dataListName="10 autores mais citados"
+          chartBarData={
+            authorsCount?.authors
+              ?.sort((a, b) => b.count - a.count)
+              .slice(0, 10)
+              .map((author) => ({
+                name: author.author,
+                count: author.count,
+              })) || []
+          }
+        />
+      ) : (
+        <h1>ChartBar</h1>
+      )}
+      {sourcesCount ? (
+        <ChartBarComponent
+          dataListName="10 fontes mais citadas"
+          chartBarData={
+            sourcesCount?.sources
+              ?.sort((a, b) => b.count - a.count)
+              .slice(0, 10)
+              .map((source) => ({
+                name: source.source,
+                count: source.count,
+              })) || []
           }
         />
       ) : (

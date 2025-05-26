@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 
 import {
   Card,
@@ -29,41 +29,52 @@ export function ChartBarComponent({
       label: 'Keyword',
       color: '#2563eb',
     },
-    mobile: {
-      label: 'Mobile',
-      color: '#60a5fa',
+    author: {
+      label: 'Author',
+      color: '#2563eb',
+    },
+    source: {
+      label: 'Source',
+      color: '#2563eb',
     },
   } satisfies ChartConfig
+
+  console.log(chartBarData)
+
   return (
     <>
-      {chartBarData ? (
+      {chartBarData && chartBarData.length > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Gráfico de Barra</CardTitle>
-            <CardDescription>{dataListName}</CardDescription>
+            <CardTitle>{dataListName}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig}>
-              <BarChart accessibilityLayer data={chartBarData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="name"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Bar dataKey="count" fill="var(--color-desktop)" radius={8} />
-              </BarChart>
-            </ChartContainer>
+          <CardContent className="h-[400px] w-full">
+            <BarChart
+              width={800}
+              height={400}
+              data={chartBarData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="name"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#2563eb" />
+            </BarChart>
           </CardContent>
         </Card>
       ) : (
-        <h1>Teste</h1>
+        <h1>Nenhum dado disponível para exibição</h1>
       )}
     </>
   )

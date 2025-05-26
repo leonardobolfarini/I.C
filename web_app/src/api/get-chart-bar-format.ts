@@ -10,15 +10,24 @@ export interface ChartBarData {
 }
 
 export interface AuthorsCountInterface {
-  authors: ChartBarData[]
+  authors: {
+    author: string
+    count: number
+  }[]
 }
 
 export interface KeywordsCountInterface {
-  keywords: ChartBarData[]
+  keywords: {
+    keyword: string
+    count: number
+  }[]
 }
 
 export interface SourcesCountInterface {
-  sources: ChartBarData[]
+  sources: {
+    source: string
+    count: number
+  }[]
 }
 
 export async function GetChartBarFormat({
