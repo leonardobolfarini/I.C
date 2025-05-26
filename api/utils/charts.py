@@ -5,9 +5,9 @@ import utils.analysis_functions as analysis
 def chart_bar_formatter(file_path): 
     file = pd.read_csv(file_path)
     
-    tables_to_drop = ["Title","Year", "DOI", "Abstract"]
+    tables_to_keep = ["Authors", "Author Keywords", "Source title"]
     
-    file = analysis.remove_columns(file, tables_to_drop)
+    file = analysis.keep_columns(file, tables_to_keep)
     file.to_csv(file_path, sep=',', quotechar='"', quoting=csv.QUOTE_ALL, index=False)
     
     file_without_tables = pd.read_csv(file_path, sep=",")
