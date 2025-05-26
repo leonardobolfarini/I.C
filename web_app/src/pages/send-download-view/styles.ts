@@ -18,7 +18,9 @@ const ContainersBase = styled('div', {
   borderRadius: 6,
 })
 
-export const FilesToSend = styled(ContainersBase, {})
+export const FilesToSend = styled(ContainersBase, {
+  gridColumn: 'span 1',
+})
 
 export const FilesToSendContainer = styled('div', {
   display: 'flex',
@@ -27,6 +29,7 @@ export const FilesToSendContainer = styled('div', {
 })
 
 export const FilesToDownload = styled(ContainersBase, {
+  gridColumn: 'span 1',
   div: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -39,12 +42,15 @@ export const FilesToDownload = styled(ContainersBase, {
 })
 
 export const MetricsView = styled('div', {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr',
+  gridColumn: 'span 2',
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-evenly',
 })
 
 export const GraphCard = styled(ContainersBase, {
   h1: {
     textAlign: 'center',
+    fontSize: '2rem',
   },
 })

@@ -165,7 +165,20 @@ export default function SendDownloadView() {
             <Image
               src="/GraphImage.png"
               width={500}
-              height={500}
+              height={300}
+              style={{ borderRadius: '8px' }}
+              alt=""
+            />
+          </GraphCard>
+        </Link>
+
+        <Link href="/charts" style={{ textDecoration: 'none' }}>
+          <GraphCard>
+            <h1>Visualização de gráfico de barras</h1>
+            <Image
+              src="/ChartImage.png"
+              width={500}
+              height={300}
               style={{ borderRadius: '8px' }}
               alt=""
             />
