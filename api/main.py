@@ -43,12 +43,12 @@ def process_files():
     wosFile.save(wos_path_txt)
 
     wos_df = pd.read_csv(wos_path_txt, sep='\t')
-    wos_df = analysis.remove_columns(wos_df, analysis.columns_to_remove_txt)
+    wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
     wos_df.to_csv(wos_path_txt, sep='\t', index=False)
     wos_df = analysis.process_wos_data(wos_df, wos_path_txt, wos_path_csv)
 
     scopus_df = pd.read_csv(scopus_path_csv, sep=',')
-    scopus_df = analysis.remove_columns(scopus_df, analysis.columns_to_remove_csv)
+    scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
     scopus_df.to_csv(scopus_path_csv, sep=',', quotechar='"', quoting=csv.QUOTE_ALL, index=False)
     scopus_df = analysis.process_scopus_data(scopus_path_csv, scopus_path_txt)
     
