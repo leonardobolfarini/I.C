@@ -5,9 +5,9 @@ import utils.analysis_functions as analysis
 def graph_formatter(graph_file_path):
     file = pd.read_csv(graph_file_path)
     
-    files_not_drop = ["Title","Year","Source title","DOI","Abstract"]
+    files_to_keep = ["Authors", "Author Keywords", "Source title"]
     
-    file = analysis.remove_columns(file, files_not_drop)
+    file = analysis.keep_columns(file, files_to_keep)
     file.to_csv(graph_file_path, sep=',', quotechar='"', quoting=csv.QUOTE_ALL, index=False)
     
     file_graph = pd.read_csv(graph_file_path, sep=",")
