@@ -151,7 +151,7 @@ export default function Charts() {
         {yearsCount ? (
           <YearsChartBar>
             <ChartLineComponent
-              dataListName="10 anos com mais publicações"
+              dataListName="Últimos 10 anos"
               chartBarData={
                 yearsCount?.years
                   ?.sort((a, b) => b.count - a.count)
@@ -164,7 +164,7 @@ export default function Charts() {
             />
           </YearsChartBar>
         ) : (
-          <h1>ChartBar</h1>
+          <h1>LineChart</h1>
         )}
       </ChartsContainer>
     </div>
