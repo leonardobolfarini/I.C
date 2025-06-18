@@ -30,6 +30,13 @@ export interface SourcesCountInterface {
   }[]
 }
 
+export interface YearsCountInterface {
+  years: {
+    year: string
+    count: number
+  }[]
+}
+
 export async function GetChartBarFormat({
   chartBarFile,
 }: GetChartBarFormatProps) {
@@ -43,11 +50,12 @@ export async function GetChartBarFormat({
     responseType: 'json',
   })
 
-  const [authors, keywords, sources] = await response.data
+  const [authors, keywords, sources, years] = await response.data
 
   return {
     authors,
     keywords,
     sources,
+    years,
   }
 }
