@@ -1,18 +1,6 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartBarData } from '@/src/api/get-chart-bar-format'
 
 interface ChartBarComponentData {
@@ -24,23 +12,6 @@ export function ChartBarComponent({
   dataListName,
   chartBarData,
 }: ChartBarComponentData) {
-  const chartConfig = {
-    keyword: {
-      label: 'Keyword',
-      color: '#2563eb',
-    },
-    author: {
-      label: 'Author',
-      color: '#2563eb',
-    },
-    source: {
-      label: 'Source',
-      color: '#2563eb',
-    },
-  } satisfies ChartConfig
-
-  console.log(chartBarData)
-
   return (
     <>
       {chartBarData && chartBarData.length > 0 ? (
@@ -50,7 +21,7 @@ export function ChartBarComponent({
           </CardHeader>
           <CardContent className="h-[400px] w-full">
             <BarChart
-              width={800}
+              width={500}
               height={400}
               data={chartBarData}
               margin={{
@@ -61,12 +32,7 @@ export function ChartBarComponent({
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="name"
-                angle={-45}
-                textAnchor="end"
-                height={80}
-              />
+              <XAxis dataKey="name" angle={-45} textAnchor="end" height={150} />
               <YAxis />
               <Tooltip />
               <Bar dataKey="count" fill="#2563eb" />
