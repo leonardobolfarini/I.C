@@ -1,5 +1,5 @@
 import { IconProps } from '@phosphor-icons/react'
-import { InfoCardContainer } from './style'
+import { InfoCardContainer } from './styles'
 
 type IconColor = 'blue' | 'green' | 'purple' | 'orange'
 
