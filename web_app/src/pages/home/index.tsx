@@ -1,31 +1,82 @@
-import Image from 'next/image'
-import ScopusWosImage from '../../assets/scopus_and_wos.jpeg'
-import { HomeContainer, HomeLeftInfos, HomeRightInfos } from './styles'
-import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
-import { Button } from '../../components/Button'
+import { HomeContainer, InfoCards, Topics } from './styles'
+import { MainLayout } from '../layout'
+import { TopicCard } from '@/src/components/TopicCard'
+import {
+  ChartBar,
+  Database,
+  File,
+  TrendUp,
+  Users,
+} from '@phosphor-icons/react/dist/ssr'
+import { InfoCard } from '@/src/components/InfoCard'
 import { useRouter } from 'next/router'
 
 export default function Home() {
   const router = useRouter()
+
   return (
-    <HomeContainer>
-      <HomeLeftInfos>
-        <h1>Merge & Insight</h1>
-        <p>Junte e analise bases de dados distintas de forma fácil!</p>
-        <Button
-          colorButton={'cyan'}
-          onClick={() => router.push('/send-download-view')}
-        >
-          Avançar
-          <ArrowRight weight="bold" height={20} width={20} />
-        </Button>
-        <Image
-          src={ScopusWosImage}
-          alt="Imagem das bases de dados Scopus e Web of Science"
-          width={445}
-        />
-      </HomeLeftInfos>
-      <HomeRightInfos></HomeRightInfos>
-    </HomeContainer>
+    <MainLayout>
+      <HomeContainer>
+        <Topics>
+          <TopicCard
+            icon={Database}
+            category="Novo"
+            title="Mesclagem de Bases"
+            details="Combine dados do Scopus e Web of Science"
+            description="Faça upload de dois arquivos e gere uma base unificada para análise"
+            onClick={() => {
+              router.push('/mesclagem')
+            }}
+          />
+          <TopicCard
+            icon={Users}
+            iconColor="green"
+            category="Grafo"
+            title="Rede de Coautoria"
+            details="Visualize colaborações entre autores"
+            description="Gere grafos interativos de relacionamento entre pesquisadores"
+            onClick={() => {
+              router.push('/coautoria')
+            }}
+          />
+          <TopicCard
+            icon={TrendUp}
+            iconColor="purple"
+            category="Múltiplos"
+            title="Análises Estatísticas"
+            details="Gráficos de barras e tendências temporais"
+            description="Visualize distribuições e evolução temporal dos dados"
+            onClick={() => {
+              router.push('/analises')
+            }}
+          />
+        </Topics>
+        <InfoCards>
+          <InfoCard
+            title="Formatos Aceitos"
+            description="CSV, TXT"
+            icon={File}
+          />
+          <InfoCard
+            title="Bases Suportadas"
+            description="Scopus & WoS"
+            icon={Database}
+            iconColor="green"
+          />
+          <InfoCard
+            title="Visualizações"
+            description="Grafos & Gráficos"
+            icon={Users}
+            iconColor="purple"
+          />
+          <InfoCard
+            title="Processamento"
+            description="Tempo Real"
+            icon={ChartBar}
+            iconColor="orange"
+          />
+        </InfoCards>
+      </HomeContainer>
+    </MainLayout>
   )
 }
