@@ -14,6 +14,7 @@ import { FileInput } from '@/src/components/FileInput'
 import { Button } from '@/src/components/Button'
 import { PaperPlaneRight } from '@phosphor-icons/react/dist/ssr'
 import { SigmaRender } from './components/SigmaRender'
+import { MainLayout } from '../layout'
 
 export interface GraphElementFormat {
   data: {
@@ -85,40 +86,42 @@ export default function Graph() {
   }
 
   return (
-    <PageContainer>
-      {!graphData || !edges || !nodes ? (
-        <FileToSend
-          as="form"
-          onSubmit={handleSubmit(handleSendGraphFileToFormat)}
-        >
-          <FileToSendContainer>
-            <p>Arquivo: </p>
-            <FileInput
-              accept=".csv, .txt"
-              idhtml="graphFile')}
-          />"
-              {...register('graphFile')}
-            />
-            <span>
-              {errors.graphFile ? String(errors.graphFile.message) : ''}
-            </span>
-          </FileToSendContainer>
-
-          <Button
-            colorButton={'white'}
-            type="submit"
-            style={{ marginLeft: 'auto', marginTop: '0.5rem' }}
-            disabled={isProcessing}
+    <MainLayout>
+      <PageContainer>
+        {!graphData || !edges || !nodes ? (
+          <FileToSend
+            as="form"
+            onSubmit={handleSubmit(handleSendGraphFileToFormat)}
           >
-            Enviar
-            <PaperPlaneRight weight="bold" height={20} width={20} />
-          </Button>
-        </FileToSend>
-      ) : (
-        <GraphContainer>
-          <SigmaRender graphEdges={edges} graphNodes={nodes} />
-        </GraphContainer>
-      )}
-    </PageContainer>
+            <FileToSendContainer>
+              <p>Arquivo: </p>
+              <FileInput
+                accept=".csv, .txt"
+                idhtml="graphFile')}
+          />"
+                {...register('graphFile')}
+              />
+              <span>
+                {errors.graphFile ? String(errors.graphFile.message) : ''}
+              </span>
+            </FileToSendContainer>
+
+            <Button
+              colorButton={'white'}
+              type="submit"
+              style={{ marginLeft: 'auto', marginTop: '0.5rem' }}
+              disabled={isProcessing}
+            >
+              Enviar
+              <PaperPlaneRight weight="bold" height={20} width={20} />
+            </Button>
+          </FileToSend>
+        ) : (
+          <GraphContainer>
+            <SigmaRender graphEdges={edges} graphNodes={nodes} />
+          </GraphContainer>
+        )}
+      </PageContainer>
+    </MainLayout>
   )
 }
