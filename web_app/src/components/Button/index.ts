@@ -4,15 +4,20 @@ export const Button = styled('button', {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  gap: '0.5rem',
 
-  fontSize: '1.25rem',
-  fontWeight: 'bold',
+  fontSize: '1.125rem',
+  fontWeight: '500',
 
   padding: '1rem 1.75rem',
   borderRadius: 6,
   border: 0,
   cursor: 'pointer',
   transition: 'background 0.2s, color 0.2s',
+
+  svg: {
+    background: 'transparent',
+  },
 
   '&:disabled': {
     cursor: 'not-allowed',
@@ -21,20 +26,12 @@ export const Button = styled('button', {
 
   variants: {
     colorButton: {
-      cyan: {
-        background: '$cyan300',
+      black: {
+        background: '$black',
         color: '$white',
         '&:hover': {
-          background: '$cyan500',
-          color: '$gray',
-        },
-      },
-      white: {
-        background: '$white',
-        color: '$cyan300',
-        '&:hover': {
-          background: '$gray',
-          color: '$cyan500',
+          background: '$slate700',
+          color: '$slate100',
         },
       },
     },
