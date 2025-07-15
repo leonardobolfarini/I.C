@@ -1,18 +1,19 @@
 import { GetGraphFormat } from '@/src/api/get-graph-format'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import {
-  FileToSend,
-  FileToSendContainer,
   GraphContainer,
-  PageContainer,
+  GraphViewContainer,
+  GraphViewFileContainer,
+  GraphViewForm,
+  GraphViewHeader,
 } from './styles'
 import { FileInput } from '@/src/components/FileInput'
 import { Button } from '@/src/components/Button'
-import { PaperPlaneRight } from '@phosphor-icons/react/dist/ssr'
+import { PaperPlaneRight, Users } from '@phosphor-icons/react/dist/ssr'
 import { SigmaRender } from './components/SigmaRender'
 import { MainLayout } from '../layout'
 
@@ -46,7 +47,7 @@ const getGraphFormatFile = z.object({
       (files) =>
         files instanceof FileList &&
         files.length > 0 &&
-        files[0].name.endsWith('.csv' || 'txt'),
+        files[0].name.endsWith('.csv' || '.txt'),
       {
         message: 'Selecione um arquivo .csv para Scopus.',
       },
@@ -87,41 +88,50 @@ export default function Graph() {
 
   return (
     <MainLayout>
-      <PageContainer>
+      <GraphViewContainer>
         {!graphData || !edges || !nodes ? (
-          <FileToSend
+          <GraphViewForm
             as="form"
             onSubmit={handleSubmit(handleSendGraphFileToFormat)}
           >
-            <FileToSendContainer>
-              <p>Arquivo: </p>
+            <GraphViewHeader>
+              <header>
+                <Users size={24} />
+                <h1>Análise de Rede de Coautoria</h1>
+              </header>
+              <footer>
+                Visualize as colaborações entre autores através de grafos
+                interativos.
+              </footer>
+            </GraphViewHeader>
+            <GraphViewFileContainer>
               <FileInput
+                idhtml="graphFile"
+                database="scopus ou web of science"
                 accept=".csv, .txt"
-                idhtml="graphFile')}
-          />"
                 {...register('graphFile')}
               />
               <span>
                 {errors.graphFile ? String(errors.graphFile.message) : ''}
               </span>
-            </FileToSendContainer>
+            </GraphViewFileContainer>
 
             <Button
-              colorButton={'white'}
+              colorButton="black"
+              style={{ marginTop: '1rem', marginLeft: 'auto' }}
               type="submit"
-              style={{ marginLeft: 'auto', marginTop: '0.5rem' }}
               disabled={isProcessing}
             >
-              Enviar
+              Analisar
               <PaperPlaneRight weight="bold" height={20} width={20} />
             </Button>
-          </FileToSend>
+          </GraphViewForm>
         ) : (
           <GraphContainer>
             <SigmaRender graphEdges={edges} graphNodes={nodes} />
           </GraphContainer>
         )}
-      </PageContainer>
+      </GraphViewContainer>
     </MainLayout>
   )
 }

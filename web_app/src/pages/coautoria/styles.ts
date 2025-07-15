@@ -1,24 +1,44 @@
 import { styled } from '@/src/styles/stitches'
 
-export const PageContainer = styled('div', {
-  gap: '0.5rem',
+export const GraphViewContainer = styled('div', {
+  marginTop: '2rem',
   padding: '1rem',
-  background: '#fff',
+
+  border: '1px solid $slate300',
+  borderRadius: '8px',
+
+  backgroundColor: '$white',
 })
 
-export const FileToSend = styled('div', {
+export const GraphViewHeader = styled('div', {
   display: 'flex',
   flexDirection: 'column',
+  gap: '4px',
 
-  background: '$cyan300',
-  color: '$white',
-  fontSize: '1.5rem',
-  padding: '2rem',
-  borderRadius: 6,
-  width: '50%',
+  marginBottom: '2rem',
+
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    gap: '0.5rem',
+
+    h1: {
+      fontSize: '1.5rem',
+      fontWeight: '600',
+    },
+  },
+
+  footer: {
+    fontSize: '0.875rem',
+    color: '$slate500',
+  },
 })
 
-export const FileToSendContainer = styled('div', {
+export const GraphViewForm = styled('div', {})
+
+export const GraphViewFileContainer = styled('div', {
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
