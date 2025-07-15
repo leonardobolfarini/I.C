@@ -11,7 +11,7 @@ export const Button = styled('button', {
 
   padding: '1rem 1.75rem',
   borderRadius: 6,
-  border: 0,
+  border: '1px solid transparent',
   cursor: 'pointer',
   transition: 'background 0.2s, color 0.2s',
 
@@ -34,6 +34,34 @@ export const Button = styled('button', {
           color: '$slate100',
         },
       },
+      transparent: {
+        background: 'transparent',
+        borderColor: '$slate300',
+        color: '$black',
+        '&:hover': {
+          background: '$slate100',
+          color: '$black',
+        },
+      },
     },
+    size: {
+      small: {
+        fontSize: '0.875rem',
+        padding: '0.25rem 1rem',
+        gap: '1rem',
+      },
+      medium: {
+        fontSize: '1rem',
+        padding: '0.875rem 1.5rem',
+      },
+      large: {
+        fontSize: '1.125rem',
+        padding: '1rem 1.75rem',
+      },
+    },
+  },
+  defaultVariants: {
+    size: 'medium',
+    colorButton: 'transparent',
   },
 })
