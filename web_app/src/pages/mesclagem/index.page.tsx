@@ -4,9 +4,9 @@ import {
   FilesToSendContainer,
   FilesToSendContent,
   FilesToSendHeader,
+  GeneratedFilesContainer,
 } from './styles'
 import { Button } from '../../components/Button'
-import { PaperPlaneRight } from '@phosphor-icons/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SendFiles } from '@/src/api/send-files'
@@ -17,6 +17,7 @@ import { FileInput } from '@/src/components/FileInput'
 import { useMutation } from '@tanstack/react-query'
 import { MainLayout } from '../layout'
 import { Database } from '@phosphor-icons/react/dist/ssr'
+import { GeneratedFile } from './components/GeneratedFile'
 
 const formFilesSchema = z.object({
   scopusFile: z
@@ -49,15 +50,20 @@ const formFilesSchema = z.object({
 export type FormFilesProps = z.infer<typeof formFilesSchema>
 
 interface DownloadUrlsTypes {
-  csvUrl: string | null
-  txtUrl: string | null
+  csvFile: {
+    csvUrl: string | null
+    csvFileName: string | null
+  }
+  txtFile: {
+    txtUrl: string | null
+    txtFileName: string | null
+  }
 }
 
 export default function SendDownloadView() {
-  const [downloadUrls, setDownloadUrls] = useState<DownloadUrlsTypes>({
-    csvUrl: null,
-    txtUrl: null,
-  })
+  const [downloadUrls, setDownloadUrls] = useState<DownloadUrlsTypes | null>(
+    null,
+  )
 
   const {
     register,
@@ -81,8 +87,14 @@ export default function SendDownloadView() {
       const blob = new Blob([response], { type: 'application/zip' })
       const zip = await JSZip.loadAsync(blob)
       const extractedFiles: DownloadUrlsTypes = {
-        csvUrl: null,
-        txtUrl: null,
+        csvFile: {
+          csvFileName: null,
+          csvUrl: null,
+        },
+        txtFile: {
+          txtFileName: null,
+          txtUrl: null,
+        },
       }
 
       for (const fileName of Object.keys(zip.files)) {
@@ -91,9 +103,11 @@ export default function SendDownloadView() {
           const fileBlob = await file.async('blob')
           const url = URL.createObjectURL(fileBlob)
           if (fileName.endsWith('.csv')) {
-            extractedFiles.csvUrl = url
+            extractedFiles.csvFile.csvUrl = url
+            extractedFiles.csvFile.csvFileName = fileName
           } else if (fileName.endsWith('.txt')) {
-            extractedFiles.txtUrl = url
+            extractedFiles.txtFile.txtUrl = url
+            extractedFiles.txtFile.txtFileName = fileName
           }
         }
       }
@@ -161,6 +175,23 @@ export default function SendDownloadView() {
             Mesclar Bases de Dados
           </Button>
         </FilesToSend>
+        {downloadUrls !== null && (
+          <GeneratedFilesContainer>
+            <h3>Arquivos Gerados</h3>
+            <div>
+              <GeneratedFile
+                fileType="csv"
+                downloadUrl={downloadUrls.csvFile.csvUrl!}
+                fileName={downloadUrls.csvFile.csvFileName!}
+              />
+              <GeneratedFile
+                fileType="txt"
+                downloadUrl={downloadUrls.txtFile.txtUrl!}
+                fileName={downloadUrls.txtFile.txtFileName!}
+              />
+            </div>
+          </GeneratedFilesContainer>
+        )}
       </FilesContainer>
     </MainLayout>
   )

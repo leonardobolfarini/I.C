@@ -8,15 +8,9 @@ export const FilesContainer = styled('div', {
   borderRadius: '8px',
 
   backgroundColor: '$white',
-
-  '*': {
-    backgroundColor: '$white',
-  },
 })
 
-const ContainersBase = styled('div', {})
-
-export const FilesToSend = styled(ContainersBase, {})
+export const FilesToSend = styled('div', {})
 
 export const FilesToSendHeader = styled('div', {
   display: 'flex',
@@ -75,8 +69,21 @@ export const FilesToSendContent = styled('div', {
   },
 })
 
-export const FilesToDownload = styled(ContainersBase, {})
+export const GeneratedFilesContainer = styled('div', {
+  backgroundColor: '$slate100',
 
-export const MetricsView = styled('div', {})
+  marginTop: '1rem',
+  padding: '1.5rem',
+  border: '1px solid $slate300',
+  borderRadius: '8px',
 
-export const GraphCard = styled(ContainersBase, {})
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '1rem',
+
+  '& > div': {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+})
