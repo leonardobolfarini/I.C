@@ -3,12 +3,12 @@ import { styled } from '@/src/styles/stitches'
 export const FileInputLabel = styled('label', {
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'flex-start',
+  justifyContent: 'center',
 
   fontWeight: 'bold',
   cursor: 'default',
 
-  width: '550px',
+  width: '100%',
   height: '300px',
 
   div: {

@@ -58,7 +58,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
         }}
       >
         <FileInputContent>
-          {filename || (
+          {filename ? (
             <div>
               <Export
                 width={62}
@@ -66,7 +66,20 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
                 weight="bold"
                 color={colors.slate500}
               />
-              <p>Arraste e solte o arquivo do {database} aqui</p>
+              <p>{filename}</p>
+              <span>
+                Arraste e solte outro arquivo ou clique para selecionar
+              </span>
+            </div>
+          ) : (
+            <div>
+              <Export
+                width={62}
+                height={62}
+                weight="bold"
+                color={colors.slate500}
+              />
+              <p>Arraste e solte o arquivo {database} aqui</p>
               <span>ou clique para selecionar</span>
             </div>
           )}
