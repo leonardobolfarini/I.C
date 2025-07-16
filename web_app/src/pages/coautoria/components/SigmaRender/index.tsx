@@ -96,7 +96,7 @@ export function SigmaRender({ graphEdges, graphNodes }: SigmaRenderProps) {
     <div
       id="sigmaContainer"
       ref={containerRef}
-      style={{ width: '100%', height: '100vh' }}
+      style={{ width: '100%', height: '400px' }}
     />
   )
 }
