@@ -15,13 +15,19 @@ import { Button } from '@/src/components/Button'
 import { PaperPlaneRight } from '@phosphor-icons/react'
 import { useState } from 'react'
 import {
-  AuthorsChartBar,
+  ChartLineViewDisplayContainer,
+  ChartsBarViewDisplayContainer,
   ChartsContainer,
-  KeywordsChartBar,
-  SourceChartBar,
-  YearsChartBar,
+  ChartsDisplayContainer,
+  ChartsForm,
+  ChartViewContainer,
+  ChartWithoutData,
+  Header,
 } from './styles'
-import { ChartLineComponent } from './components/chartLineComponent'
+import { ChartBar, ChartLine } from '@phosphor-icons/react/dist/ssr'
+import { MainLayout } from '../layout'
+import { ChartLineComponent } from './components/ChartLineComponent'
+import { colors } from '@/src/styles/colors'
 
 const getChartBarFormatFile = z.object({
   chartBarFile: z
@@ -75,98 +81,136 @@ export default function Charts() {
     setYearsCount(years)
   }
 
-  console.log(yearsCount)
-
   return (
-    <div className="max-h-[1000px] max-w-[1000px]">
-      <form onSubmit={handleSubmit(handleGetChartBarFormat)}>
-        <FileInput
-          accept=".csv, .txt"
-          idhtml="chartBarFile"
-          {...register('chartBarFile')}
-        />
-        <span>
-          {errors.chartBarFile ? String(errors.chartBarFile.message) : ''}
-        </span>
-        <Button disabled={isProcessing} type="submit">
-          Enviar
-          <PaperPlaneRight weight="bold" height={20} width={20} />
-        </Button>
-      </form>
+    <MainLayout>
       <ChartsContainer>
-        {keywordsCount ? (
-          <KeywordsChartBar>
-            <ChartBarComponent
-              dataListName="10 palavras-chaves mais citadas"
-              chartBarData={
-                keywordsCount?.keywords
-                  ?.sort((a, b) => b.count - a.count)
-                  .slice(0, 10)
-                  .map((keyword) => ({
-                    name: keyword.keyword,
-                    count: keyword.count,
-                  })) || []
-              }
-            />
-          </KeywordsChartBar>
-        ) : (
-          <h1>ChartBar</h1>
-        )}
-        {authorsCount ? (
-          <AuthorsChartBar>
-            <ChartBarComponent
-              dataListName="10 autores mais citados"
-              chartBarData={
-                authorsCount?.authors
-                  ?.sort((a, b) => b.count - a.count)
-                  .slice(0, 10)
-                  .map((author) => ({
-                    name: author.author,
-                    count: author.count,
-                  })) || []
-              }
-            />
-          </AuthorsChartBar>
-        ) : (
-          <h1>ChartBar</h1>
-        )}
-        {sourcesCount ? (
-          <SourceChartBar>
-            <ChartBarComponent
-              dataListName="10 fontes mais citadas"
-              chartBarData={
-                sourcesCount?.sources
-                  ?.sort((a, b) => b.count - a.count)
-                  .slice(0, 10)
-                  .map((source) => ({
-                    name: source.source,
-                    count: source.count,
-                  })) || []
-              }
-            />
-          </SourceChartBar>
-        ) : (
-          <h1>ChartBar</h1>
-        )}
-        {yearsCount ? (
-          <YearsChartBar>
-            <ChartLineComponent
-              dataListName="Últimos 10 anos"
-              chartBarData={
-                yearsCount?.years
-                  ?.sort((a, b) => b.count - a.count)
-                  .slice(0, 10)
-                  .map((source) => ({
-                    name: source.year,
-                    count: source.count,
-                  })) || []
-              }
-            />
-          </YearsChartBar>
-        ) : (
-          <h1>LineChart</h1>
-        )}
+        <ChartsForm as="form" onSubmit={handleSubmit(handleGetChartBarFormat)}>
+          <Header>
+            <header>
+              <ChartBar size={32} />
+              <h1>Análises Estatísticas Completas</h1>
+            </header>
+            <footer>
+              Faça upload de um arquivo para gerar gráficos de barras e análise
+              temporal
+            </footer>
+          </Header>
+          <FileInput
+            idhtml="chartBarFile"
+            accept=".csv, .txt"
+            {...register('chartBarFile')}
+          />
+          <span>
+            {errors.chartBarFile ? String(errors.chartBarFile.message) : ''}
+          </span>
+          <Button
+            colorButton="black"
+            style={{ marginTop: '1rem', marginLeft: 'auto' }}
+            disabled={isProcessing}
+            type="submit"
+          >
+            Analisar
+            <PaperPlaneRight weight="bold" height={20} width={20} />
+          </Button>
+        </ChartsForm>
+        <ChartsDisplayContainer>
+          <Header>
+            <header>
+              <ChartBar size={32} />
+              <h1>Gráficos de Distribuição</h1>
+            </header>
+            <footer>Análise quantitativa por categorias</footer>
+          </Header>
+          {keywordsCount || authorsCount || sourcesCount ? (
+            <ChartsBarViewDisplayContainer>
+              <ChartViewContainer>
+                <ChartBarComponent
+                  dataListName="10 palavras-chaves mais citadas"
+                  chartBarData={
+                    keywordsCount?.keywords
+                      ?.sort((a, b) => b.count - a.count)
+                      .slice(0, 10)
+                      .map((keyword) => ({
+                        name: keyword.keyword,
+                        count: keyword.count,
+                      })) || []
+                  }
+                />
+              </ChartViewContainer>
+              <ChartViewContainer>
+                <ChartBarComponent
+                  dataListName="10 autores mais citados"
+                  chartBarData={
+                    authorsCount?.authors
+                      ?.sort((a, b) => b.count - a.count)
+                      .slice(0, 10)
+                      .map((author) => ({
+                        name: author.author,
+                        count: author.count,
+                      })) || []
+                  }
+                />
+              </ChartViewContainer>
+              <ChartViewContainer>
+                <ChartBarComponent
+                  dataListName="10 fontes mais citadas"
+                  chartBarData={
+                    sourcesCount?.sources
+                      ?.sort((a, b) => b.count - a.count)
+                      .slice(0, 10)
+                      .map((source) => ({
+                        name: source.source,
+                        count: source.count,
+                      })) || []
+                  }
+                />
+              </ChartViewContainer>
+            </ChartsBarViewDisplayContainer>
+          ) : (
+            <ChartViewContainer>
+              <ChartWithoutData>
+                <ChartBar size={50} color={colors.slate400} />
+                <span>Gráficos de barra aparecerão aqui</span>
+              </ChartWithoutData>
+            </ChartViewContainer>
+          )}
+        </ChartsDisplayContainer>
+        <ChartsDisplayContainer>
+          <Header>
+            <header>
+              <ChartLine size={32} />
+              <h1>Evolução Temporal</h1>
+            </header>
+            <footer>Tendências e padrões ao longo do tempo</footer>
+          </Header>
+          {yearsCount ? (
+            <ChartLineViewDisplayContainer>
+              <ChartViewContainer>
+                <ChartLineComponent
+                  dataListName="Últimos 10 anos"
+                  chartBarData={
+                    yearsCount?.years
+                      ?.sort((a, b) => b.count - a.count)
+                      .slice(0, 10)
+                      .map((source) => ({
+                        name: source.year,
+                        count: source.count,
+                      })) || []
+                  }
+                />
+              </ChartViewContainer>
+            </ChartLineViewDisplayContainer>
+          ) : (
+            <ChartViewContainer>
+              <ChartWithoutData>
+                <ChartLine size={50} color={colors.slate400} />
+                <h2>Gráfico de Linha Temporal</h2>
+                <span>Dados de evolução temporal serão exibidos aqui</span>
+              </ChartWithoutData>
+            </ChartViewContainer>
+          )}
+        </ChartsDisplayContainer>
       </ChartsContainer>
-    </div>
+    </MainLayout>
   )
 }
