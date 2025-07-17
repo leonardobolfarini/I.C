@@ -5,7 +5,7 @@ import { colors } from '@/src/styles/colors'
 
 interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   idhtml: string
-  database: string
+  database?: string
 }
 
 export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
@@ -90,7 +90,6 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
           accept={props.accept}
           onChange={handleChange}
           ref={(el) => {
-            inputRef.current = el
             if (typeof ref === 'function') ref(el)
             else if (ref) ref.current = el
           }}
