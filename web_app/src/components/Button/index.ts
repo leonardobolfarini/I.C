@@ -15,6 +15,8 @@ export const Button = styled('button', {
   cursor: 'pointer',
   transition: 'background 0.2s, color 0.2s',
 
+  width: '100%',
+
   svg: {
     background: 'transparent',
   },
