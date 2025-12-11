@@ -36,7 +36,7 @@ export function SigmaRender({ graphEdges, graphNodes }: SigmaRenderProps) {
 
       const fa2Layout: FA2Layout = new FA2Layout(graph, {
         settings: {
-          gravity: 1,
+          gravity: 100,
           scalingRatio: 10,
         },
       })
