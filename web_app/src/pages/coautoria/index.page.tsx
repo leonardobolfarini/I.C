@@ -1,3 +1,5 @@
+'use client'
+
 import { GetGraphFormat } from '@/src/api/get-graph-format'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
@@ -20,6 +22,7 @@ import { PaperPlaneRight, Users } from '@phosphor-icons/react/dist/ssr'
 import { SigmaRender } from './components/SigmaRender'
 import { MainLayout } from '../layout'
 import { colors } from '@/src/styles/colors'
+import Head from 'next/head'
 
 export interface GraphElementFormat {
   data: {
@@ -53,7 +56,7 @@ const getGraphFormatFile = z.object({
         files.length > 0 &&
         (files[0].name.endsWith('.csv') || files[0].name.endsWith('.txt')),
       {
-        message: 'Selecione um arquivo .csv para Scopus.',
+        message: 'Selecione um arquivo',
       },
     )
     .transform((files) => files[0]),
@@ -73,10 +76,13 @@ export default function Graph() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting: isProcessing },
   } = useForm<GetGraphFormatFile>({
     resolver: zodResolver(getGraphFormatFile),
   })
+
+  const graphFileValue = watch('graphFile')
 
   async function handleSendGraphFileToFormat({
     graphFile,
@@ -92,6 +98,13 @@ export default function Graph() {
 
   return (
     <MainLayout>
+      <Head>
+        <title>Coautoria</title>
+        <meta
+          name="description"
+          content="Page where you can analyze co-authorship networks."
+        />
+      </Head>
       <GraphViewContainer>
         <GraphViewForm
           as="form"
@@ -110,8 +123,9 @@ export default function Graph() {
           <GraphViewFileContainer>
             <FileInput
               idhtml="graphFile"
-              database="scopus ou web of science"
+              database=""
               accept=".csv, .txt"
+              value={graphFileValue}
               {...register('graphFile')}
             />
             <span>
