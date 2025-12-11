@@ -1,110 +1,143 @@
-import os
 import csv
+import os
 import zipfile
+
 import pandas as pd
 import utils.analysis_functions as analysis
-import utils.graph as graph
 import utils.charts as charts
+import utils.graph as graph
 from flask import Flask, make_response, request, send_file
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = 'uploads'
-OUTPUT_FOLDER = 'outputs'
+UPLOAD_FOLDER = "uploads"
+OUTPUT_FOLDER = "outputs"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
-@app.route('/process', methods=['Options', 'Post'])
+@app.route("/process", methods=["Options", "Post"])
 def process_files():
-    if request.method == 'OPTIONS':
+    if request.method == "OPTIONS":
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type")
         return response
 
-    if 'scopusFile' not in request.files or 'wosFile' not in request.files:
+    if "scopusFile" not in request.files or "wosFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
-    scopusFile = request.files['scopusFile']
-    wosFile = request.files['wosFile']
+    scopusFile = request.files["scopusFile"]
+    wosFile = request.files["wosFile"]
 
-    scopus_path_csv = os.path.join(UPLOAD_FOLDER, 'scopusFile.csv')
-    scopus_path_txt = os.path.join(UPLOAD_FOLDER, 'scopusFile.txt')
-    wos_path_txt = os.path.join(UPLOAD_FOLDER, 'wosFile.txt')
-    wos_path_csv = os.path.join(UPLOAD_FOLDER, 'wosFile.csv')
-    output_csv_path = os.path.join(OUTPUT_FOLDER, 'all_in_one.csv')
-    output_txt_path = os.path.join(OUTPUT_FOLDER, 'all_in_one.txt')
+    scopus_path_csv = os.path.join(UPLOAD_FOLDER, "scopusFile.csv")
+    scopus_path_txt = os.path.join(UPLOAD_FOLDER, "scopusFile.txt")
+    wos_path_txt = os.path.join(UPLOAD_FOLDER, "wosFile.txt")
+    wos_path_csv = os.path.join(UPLOAD_FOLDER, "wosFile.csv")
+    output_csv_path = os.path.join(OUTPUT_FOLDER, "all_in_one.csv")
+    output_txt_path = os.path.join(OUTPUT_FOLDER, "all_in_one.txt")
 
     scopusFile.save(scopus_path_csv)
     wosFile.save(wos_path_txt)
 
-    wos_df = pd.read_csv(wos_path_txt, sep='\t')
+    wos_df = pd.read_csv(wos_path_txt, sep="\t")
     wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
-    wos_df.to_csv(wos_path_txt, sep='\t', index=False)
+    wos_df.to_csv(wos_path_txt, sep="\t", index=False)
     wos_df = analysis.process_wos_data(wos_df, wos_path_txt, wos_path_csv)
 
-    scopus_df = pd.read_csv(scopus_path_csv, sep=',')
+    scopus_df = pd.read_csv(scopus_path_csv, sep=",")
     scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
-    scopus_df.to_csv(scopus_path_csv, sep=',', quotechar='"', quoting=csv.QUOTE_ALL, index=False)
+    scopus_df.to_csv(
+        scopus_path_csv, sep=",", quotechar='"', quoting=csv.QUOTE_ALL, index=False
+    )
     scopus_df = analysis.process_scopus_data(scopus_path_csv, scopus_path_txt)
-    
-    analysis.merge_and_process_files_in_csv(scopus_path_csv, wos_path_csv, output_csv_path)
-    analysis.merge_and_process_files_in_txt(scopus_path_txt, wos_path_txt, output_txt_path)
 
-    zip_path = os.path.join(OUTPUT_FOLDER, 'resultados.zip')
-    with zipfile.ZipFile(zip_path, 'w') as zipf:
-        zipf.write(output_csv_path, arcname='all_in_one.csv')
-        zipf.write(output_txt_path, arcname='all_in_one.txt')
+    analysis.merge_and_process_files_in_csv(
+        scopus_path_csv, wos_path_csv, output_csv_path
+    )
+    analysis.merge_and_process_files_in_txt(
+        scopus_path_txt, wos_path_txt, output_txt_path
+    )
+
+    zip_path = os.path.join(OUTPUT_FOLDER, "resultados.zip")
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        zipf.write(output_csv_path, arcname="all_in_one.csv")
+        zipf.write(output_txt_path, arcname="all_in_one.txt")
 
     return send_file(zip_path, as_attachment=True)
 
-@app.route('/graph', methods=['Options', 'Post'])
+
+@app.route("/graph", methods=["Options", "Post"])
 def get_graph_format():
-    if request.method == 'OPTIONS':
+    if request.method == "OPTIONS":
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type")
         return response
 
-    if 'graphFile' not in request.files:
+    if "graphFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
-    graphFile = request.files['graphFile']
-    
-    graph_file_path = os.path.join(UPLOAD_FOLDER, 'graphFile.csv')
-    
+    graphFile = request.files["graphFile"]
+
+    filename = secure_filename(graphFile.filename or "")
+    _, file_extension = os.path.splitext(filename)
+    file_extension = file_extension.lower()
+
+    temp_filename = f"temp_graph_file{file_extension}"
+    graph_file_path = os.path.join(UPLOAD_FOLDER, temp_filename)
+
     graphFile.save(graph_file_path)
-    
-    graph_data = graph.graph_formatter(graph_file_path)
-    
+
+    try:
+        graph_data = graph.graph_formatter(graph_file_path, file_extension)
+    except Exception as e:
+        return f"Erro ao processar arquivo: {str(e)}", 500
+    finally:
+        if os.path.exists(graph_file_path):
+            os.remove(graph_file_path)
+
     return graph_data
 
-@app.route('/chart_bar', methods=['Options', 'Post'])
+
+@app.route("/chart_bar", methods=["Options", "Post"])
 def get_chart_format():
-    if request.method == 'OPTIONS':
+    if request.method == "OPTIONS":
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type")
         return response
 
-    if 'chartBarFile' not in request.files:
+    if "chartBarFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
-    chart_bar_file = request.files['chartBarFile']
-    
-    chart_bar_file_path = os.path.join(UPLOAD_FOLDER, 'chartBarFile.csv')
-    
+    chart_bar_file = request.files["chartBarFile"]
+
+    filename = secure_filename(chart_bar_file.filename or "")
+    _, file_extension = os.path.splitext(filename)
+    file_extension = file_extension.lower()
+
+    temp_filename = f"temp_chart_bar{file_extension}"
+    chart_bar_file_path = os.path.join(UPLOAD_FOLDER, temp_filename)
+
     chart_bar_file.save(chart_bar_file_path)
-    
-    chart_data = charts.chart_bar_formatter(chart_bar_file_path)
-    
+
+    try:
+        chart_data = charts.chart_bar_formatter(chart_bar_file_path, file_extension)
+    except Exception as e:
+        return f"Erro ao processar arquivo: {str(e)}", 500
+    finally:
+        if os.path.exists(chart_bar_file_path):
+            os.remove(chart_bar_file_path)
+
     return chart_data
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5009, debug=False)
