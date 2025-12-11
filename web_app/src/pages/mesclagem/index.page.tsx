@@ -1,4 +1,5 @@
 import {
+  ButtonContainer,
   FilesContainer,
   FilesToSend,
   FilesToSendContainer,
@@ -18,6 +19,7 @@ import { useMutation } from '@tanstack/react-query'
 import { MainLayout } from '../layout'
 import { Database } from '@phosphor-icons/react/dist/ssr'
 import { GeneratedFile } from './components/GeneratedFile'
+import Head from 'next/head'
 
 const formFilesSchema = z.object({
   scopusFile: z
@@ -68,6 +70,7 @@ export default function SendDownloadView() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting: isProcessing },
   } = useForm<FormFilesProps>({
     resolver: zodResolver(formFilesSchema),
@@ -76,6 +79,9 @@ export default function SendDownloadView() {
   const { mutateAsync: sendFilesFn } = useMutation({
     mutationFn: SendFiles,
   })
+
+  const scopusFileValue = watch('scopusFile')
+  const wosFileValue = watch('wosFile')
 
   async function handleSendFiles(files: FormFilesProps) {
     try {
@@ -113,13 +119,20 @@ export default function SendDownloadView() {
       }
 
       setDownloadUrls(extractedFiles)
-    } catch {
-      alert('Ocorreu um erro.')
+    } catch (error) {
+      alert(error)
     }
   }
 
   return (
     <MainLayout>
+      <Head>
+        <title>Mesclagem</title>
+        <meta
+          name="description"
+          content="Page where users can upload and merge database files."
+        />
+      </Head>
       <FilesContainer>
         <FilesToSend as="form" onSubmit={handleSubmit(handleSendFiles)}>
           <FilesToSendHeader>
@@ -142,6 +155,7 @@ export default function SendDownloadView() {
                 idhtml="scopusFile"
                 database="Scopus"
                 accept=".csv"
+                value={scopusFileValue}
                 {...register('scopusFile')}
               />
               <span>
@@ -158,6 +172,7 @@ export default function SendDownloadView() {
                 idhtml="wosFile"
                 database="Web of Science"
                 accept=".txt"
+                value={wosFileValue}
                 {...register('wosFile')}
               />
               <span>
@@ -165,15 +180,12 @@ export default function SendDownloadView() {
               </span>
             </FilesToSendContent>
           </FilesToSendContainer>
-          <Button
-            colorButton="black"
-            type="submit"
-            style={{ marginLeft: '40%', marginTop: '1.5rem' }}
-            disabled={isProcessing}
-          >
-            <Database weight="bold" height={20} width={20} />
-            Mesclar Bases de Dados
-          </Button>
+          <ButtonContainer>
+            <Button colorButton="black" type="submit" disabled={isProcessing}>
+              <Database weight="bold" height={20} width={20} />
+              Mesclar Bases de Dados
+            </Button>
+          </ButtonContainer>
         </FilesToSend>
         {downloadUrls !== null && (
           <GeneratedFilesContainer>
