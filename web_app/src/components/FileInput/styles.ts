@@ -4,41 +4,57 @@ export const FileInputLabel = styled('label', {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-
-  fontWeight: 'bold',
-  cursor: 'default',
-
   width: '100%',
   height: '300px',
+  fontWeight: 'bold',
+  borderRadius: '8px',
+  transition: 'all 0.2s ease',
+  cursor: 'pointer',
 
-  div: {
-    cursor: 'pointer',
-    padding: '20px',
-    background: '$white',
+  '&:hover': {
+    backgroundColor: '#fafafa',
   },
 })
 
 export const FileInputContent = styled('div', {
-  div: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '1rem',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '1rem',
+  textAlign: 'center',
 
+  svg: {
+    backgroundColor: 'transparent',
+  },
+
+  p: {
+    fontSize: '1.25rem',
+    fontWeight: '800',
+  },
+
+  span: {
+    backgroundColor: 'rgba(96, 165, 250, 0.3)',
+    padding: '0.25rem 1rem',
+    borderRadius: '9999px',
+
+    fontSize: '0.875rem',
+    fontWeight: '700',
+    color: '$blue800',
+  },
+
+  '@mobile': {
+    p: {
+      fontSize: '0.875rem',
+    },
     svg: {
-      backgroundColor: 'transparent',
+      height: '48px',
     },
   },
 })
 
 export const FileInputStyle = styled('input', {
   position: 'absolute',
-  width: '1px',
-  height: '1px',
-  padding: '0',
-  margin: '-1px',
-  overflow: 'hidden',
-  clip: 'rect(0,0,0,0)',
-  border: '0',
+  opacity: 0,
+  pointerEvents: 'none',
 })

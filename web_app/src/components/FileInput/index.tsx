@@ -1,7 +1,13 @@
 import { Export } from '@phosphor-icons/react/dist/ssr'
 import { FileInputContent, FileInputLabel, FileInputStyle } from './styles'
-import React, { forwardRef, useRef, useState } from 'react'
 import { colors } from '@/src/styles/colors'
+import React, {
+  forwardRef,
+  useRef,
+  useState,
+  useMemo,
+  useImperativeHandle,
+} from 'react'
 
 interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   idhtml: string
@@ -10,16 +16,26 @@ interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
   function FileInput(props: FileInputProps, ref) {
-    const { idhtml, database } = props
-
-    const [filename, setFilename] = useState<string | null>(null)
+    const { idhtml, database, value, onChange, ...rest } = props
     const [dragOver, setDragOver] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
+    useImperativeHandle(ref, () => inputRef.current!)
+
+    const filename = useMemo(() => {
+      if (
+        typeof FileList !== 'undefined' &&
+        value instanceof FileList &&
+        value.length > 0
+      ) {
+        return value[0].name
+      }
+      return null
+    }, [value])
+
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-      const file = event.target.files?.[0]
-      if (file) {
-        setFilename(file.name)
+      if (onChange) {
+        onChange(event)
       }
     }
 
@@ -32,8 +48,6 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
         const dataTransfer = new DataTransfer()
         dataTransfer.items.add(file)
         inputRef.current.files = dataTransfer.files
-        setFilename(file.name)
-
         const changeEvent = new Event('change', { bubbles: true })
         inputRef.current.dispatchEvent(changeEvent)
       }
@@ -58,42 +72,48 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
         }}
       >
         <FileInputContent>
+          <Export
+            width={62}
+            height={62}
+            weight="bold"
+            color={colors.slate500}
+          />
           {filename ? (
-            <div>
-              <Export
-                width={62}
-                height={62}
-                weight="bold"
-                color={colors.slate500}
-              />
-              <p>{filename}</p>
-              <span>
-                Arraste e solte outro arquivo ou clique para selecionar
+            <>
+              <p style={{ fontWeight: 600, color: colors.slate700 }}>
+                {filename}
+              </p>
+              <span
+                style={{
+                  color: colors.slate500,
+                }}
+              >
+                Arraste e solte outro arquivo ou clique para substituir
               </span>
-            </div>
+            </>
           ) : (
-            <div>
-              <Export
-                width={62}
-                height={62}
-                weight="bold"
-                color={colors.slate500}
-              />
-              <p>Arraste e solte o arquivo {database} aqui</p>
-              <span>ou clique para selecionar</span>
-            </div>
+            <>
+              <p style={{ fontWeight: 500, color: colors.slate600 }}>
+                Arraste e solte o arquivo {database} aqui
+              </p>
+              <span
+                style={{
+                  color: colors.slate500,
+                }}
+              >
+                ou clique para selecionar
+              </span>
+            </>
           )}
         </FileInputContent>
+
         <FileInputStyle
           id={idhtml}
           type="file"
           accept={props.accept}
           onChange={handleChange}
-          ref={(el) => {
-            if (typeof ref === 'function') ref(el)
-            else if (ref) ref.current = el
-          }}
-          {...props}
+          ref={inputRef}
+          {...rest}
         />
       </FileInputLabel>
     )
