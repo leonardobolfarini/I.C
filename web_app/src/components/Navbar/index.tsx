@@ -1,6 +1,7 @@
 import {
   ChartBar,
   Database,
+  MagnifyingGlass,
   TrendUp,
   Users,
 } from '@phosphor-icons/react/dist/ssr'
@@ -13,8 +14,8 @@ export function NavBar() {
   return (
     <NavBarContainer>
       <NavBarItem href="/" active={pathname === '/'}>
-        <ChartBar size={16} />
-        Dashboard
+        <MagnifyingGlass size={16} />
+        Sobre
       </NavBarItem>
       <NavBarItem href="/mesclagem" active={pathname === '/mesclagem'}>
         <Database size={16} />

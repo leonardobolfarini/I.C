@@ -7,6 +7,11 @@ export const NavBarContainer = styled('nav', {
   padding: '4px',
   backgroundColor: '$slate100',
   borderRadius: '8px',
+
+  '@mobile': {
+    flexDirection: 'column',
+    width: '100%',
+  },
 })
 
 export const NavBarItem = styled('a', {
