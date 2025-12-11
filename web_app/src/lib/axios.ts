@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+const isServer = typeof window === 'undefined'
+
 export const api = axios.create({
-  baseURL: 'http://127.0.0.1:5000/',
+  baseURL: isServer
+    ? process.env.INTERNAL_API_URL
+    : process.env.NEXT_PUBLIC_API_URL,
 })
