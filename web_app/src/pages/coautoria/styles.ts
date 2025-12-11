@@ -27,12 +27,26 @@ export const GraphViewHeader = styled('div', {
     h1: {
       fontSize: '1.5rem',
       fontWeight: '600',
+
+      '@mobile': {
+        fontSize: '1.25rem',
+      },
+    },
+
+    '@mobile': {
+      svg: {
+        display: 'none',
+      },
     },
   },
 
   footer: {
     fontSize: '0.875rem',
     color: '$slate500',
+
+    '@mobile': {
+      fontSize: '0.75rem',
+    },
   },
 })
 
@@ -55,6 +69,11 @@ export const GraphDisplayContainer = styled('div', {
   padding: '2rem',
   borderRadius: '8px',
   marginTop: '2rem',
+
+  '@mobile': {
+    padding: '0.5rem',
+    gap: '1rem',
+  },
 })
 
 export const GraphDisplayHeader = styled('div', {
@@ -70,6 +89,15 @@ export const GraphDisplayHeader = styled('div', {
   span: {
     fontSize: '0.875rem',
     color: '$slate500',
+  },
+
+  '@mobile': {
+    h3: {
+      fontSize: '1rem',
+    },
+    span: {
+      fontSize: '0.75rem',
+    },
   },
 })
 
@@ -98,5 +126,16 @@ export const GraphDisplayWithoutData = styled('div', {
     fontSize: '0.875rem',
     color: '$slate400',
     textAlign: 'center',
+  },
+
+  '@mobile': {
+    gap: '0.5rem',
+
+    h2: {
+      fontSize: '1rem',
+    },
+    span: {
+      fontSize: '0.75rem',
+    },
   },
 })

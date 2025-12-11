@@ -12,6 +12,14 @@ export const GeneratedFileContainer = styled('div', {
 
   padding: '0.75rem',
 
+  '@mobile': {
+    flexDirection: 'column',
+  },
+
+  '@media (min-width: 321px)': {
+    flexDirection: 'row',
+  },
+
   '& > div': {
     display: 'flex',
     flexDirection: 'row',

@@ -11,10 +11,18 @@ export const Topics = styled('div', {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
   gap: '1rem',
+
+  '@mobile': {
+    gridTemplateColumns: '1fr',
+  },
 })
 
 export const InfoCards = styled('div', {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
   gap: '1rem',
+
+  '@mobile': {
+    gridTemplateColumns: '1fr',
+  },
 })

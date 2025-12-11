@@ -17,12 +17,26 @@ export const Header = styled('div', {
     h1: {
       fontSize: '1.5rem',
       fontWeight: '600',
+
+      '@mobile': {
+        fontSize: '1rem',
+      },
+    },
+
+    '@mobile': {
+      svg: {
+        display: 'none',
+      },
     },
   },
 
   footer: {
     fontSize: '0.875rem',
     color: '$slate500',
+
+    '@mobile': {
+      fontSize: '0.75rem',
+    },
   },
 })
 
@@ -82,5 +96,22 @@ export const ChartWithoutData = styled('div', {
     fontSize: '0.875rem',
     color: '$slate400',
     textAlign: 'center',
+  },
+
+  '@mobile': {
+    padding: '1rem',
+
+    svg: {
+      height: '48px',
+    },
+
+    h2: {
+      fontSize: '1rem',
+      textAlign: 'center',
+    },
+
+    span: {
+      fontSize: '0.75rem',
+    },
   },
 })
