@@ -1,7 +1,7 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChartBarData } from '@/src/api/get-chart-bar-format'
+import { ChartBarData } from '@/src/lib/types'
 
 interface ChartBarComponentData {
   dataListName: string
