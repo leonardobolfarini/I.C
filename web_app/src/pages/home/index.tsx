@@ -10,12 +10,20 @@ import {
 } from '@phosphor-icons/react/dist/ssr'
 import { InfoCard } from '@/src/components/InfoCard'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 
 export default function Home() {
   const router = useRouter()
 
   return (
     <MainLayout>
+      <Head>
+        <title>Sobre</title>
+        <meta
+          name="description"
+          content="Home page that gives an overview of the project."
+        />
+      </Head>
       <HomeContainer>
         <Topics>
           <TopicCard
