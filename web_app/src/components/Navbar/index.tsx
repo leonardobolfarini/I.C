@@ -1,5 +1,4 @@
 import {
-  ChartBar,
   Database,
   MagnifyingGlass,
   TrendUp,
