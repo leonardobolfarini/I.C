@@ -1,13 +1,7 @@
 import { z } from 'zod'
 import { ChartBarComponent } from './components/ChartBarComponent'
 import { useMutation } from '@tanstack/react-query'
-import {
-  AuthorsCountInterface,
-  GetChartBarFormat,
-  KeywordsCountInterface,
-  SourcesCountInterface,
-  YearsCountInterface,
-} from '@/src/api/get-chart-bar-format'
+import { GetChartBarFormat } from '@/src/api/get-chart-bar-format'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FileInput } from '@/src/components/FileInput'
@@ -28,6 +22,13 @@ import { ChartBar, ChartLine } from '@phosphor-icons/react/dist/ssr'
 import { MainLayout } from '../layout'
 import { ChartLineComponent } from './components/ChartLineComponent'
 import { colors } from '@/src/styles/colors'
+import {
+  AuthorsCountInterface,
+  KeywordsCountInterface,
+  SourcesCountInterface,
+  YearsCountInterface,
+} from '@/src/lib/types'
+import Head from 'next/head'
 
 const getChartBarFormatFile = z.object({
   chartBarFile: z
@@ -63,10 +64,13 @@ export default function Charts() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting: isProcessing },
   } = useForm<GetChartBarFormatFile>({
     resolver: zodResolver(getChartBarFormatFile),
   })
+
+  const chartFileValue = watch('chartBarFile')
 
   async function handleGetChartBarFormat({
     chartBarFile,
@@ -83,6 +87,13 @@ export default function Charts() {
 
   return (
     <MainLayout>
+      <Head>
+        <title>Analises</title>
+        <meta
+          name="description"
+          content="Page where users can upload files to generate statistical charts and temporal analysis."
+        />
+      </Head>
       <ChartsContainer>
         <ChartsForm as="form" onSubmit={handleSubmit(handleGetChartBarFormat)}>
           <Header>
@@ -98,6 +109,7 @@ export default function Charts() {
           <FileInput
             idhtml="chartBarFile"
             accept=".csv, .txt"
+            value={chartFileValue}
             {...register('chartBarFile')}
           />
           <span>
