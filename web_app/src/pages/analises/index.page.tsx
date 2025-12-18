@@ -86,7 +86,6 @@ export default function Charts() {
     setSourcesCount(sources)
     setYearsCount(years)
   }
-
   return (
     <MainLayout>
       <Head>
@@ -149,7 +148,7 @@ export default function Charts() {
                       ?.sort((a, b) => b.count - a.count)
                       .slice(0, 10)
                       .map((keyword) => ({
-                        name: keyword.keyword,
+                        name: keyword.label,
                         count: keyword.count,
                       })) || []
                   }
@@ -175,7 +174,7 @@ export default function Charts() {
                       ?.sort((a, b) => b.count - a.count)
                       .slice(0, 10)
                       .map((author) => ({
-                        name: author.author,
+                        name: author.label,
                         count: author.count,
                       })) || []
                   }
@@ -201,7 +200,7 @@ export default function Charts() {
                       ?.sort((a, b) => b.count - a.count)
                       .slice(0, 10)
                       .map((source) => ({
-                        name: source.source,
+                        name: source.label,
                         count: source.count,
                       })) || []
                   }
@@ -244,11 +243,11 @@ export default function Charts() {
                   dataListName="Últimos 10 anos"
                   chartBarData={
                     yearsCount?.years
-                      ?.sort((a, b) => Number(b.year) - Number(a.year))
+                      ?.sort((a, b) => Number(b.label) - Number(a.label))
                       .slice(0, 10)
-                      .sort((a, b) => Number(a.year) - Number(b.year))
+                      .sort((a, b) => Number(a.label) - Number(b.label))
                       .map((source) => ({
-                        name: source.year,
+                        name: source.label,
                         count: source.count,
                       })) || []
                   }

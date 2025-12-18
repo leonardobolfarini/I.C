@@ -3,13 +3,17 @@ import {
   GraphNodesFormat,
 } from '../pages/coautoria/index.page'
 
-export const exportToCSV = (data: any[], fileName: string, keyName: string) => {
+export const exportToCSV = (
+  data: { count: number; label: string }[],
+  fileName: string,
+  keyName: string,
+) => {
   if (!data || data.length === 0) return
 
   const csvRows = [
     'sep=;',
     `${keyName};Quantidade`,
-    ...data.map((item) => `"${String(item[keyName])}";${item.count}`),
+    ...data.map((item) => `"${item.label}";${item.count}`),
   ]
 
   const csvContent = csvRows.join('\n')
@@ -34,7 +38,6 @@ export const exportToPajek = (
   fileName: string,
 ) => {
   if (!graphData) return
-  console.log(graphData.nodes)
 
   const nodeMap = new Map()
   let verticesText = `*Vertices ${graphData.nodes.length}\n`

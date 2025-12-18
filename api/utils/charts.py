@@ -33,11 +33,11 @@ def chart_bar_formatter(file_path, extension):
                 result_data.append({output_key_name: term, "count": int(count)})
         return result_data
 
-    chart_authors_data = get_counts(col_map["authors"], "author")
-    chart_keywords_data = get_counts(col_map["keywords"], "keyword")
-    chart_source_data = get_counts(col_map["source"], "source")
+    chart_authors_data = get_counts(col_map["authors"], "label")
+    chart_keywords_data = get_counts(col_map["keywords"], "label")
+    chart_source_data = get_counts(col_map["source"], "label")
 
-    chart_years_data = get_counts(col_map["year"], "year")
+    chart_years_data = get_counts(col_map["year"], "label")
 
     charts_data = [
         {"authors": chart_authors_data},

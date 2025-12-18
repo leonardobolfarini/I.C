@@ -7,30 +7,23 @@ export interface ChartBarData {
   count: number
 }
 
+export interface ChartCountInterface {
+  label: string
+  count: number
+}
+
 export interface AuthorsCountInterface {
-  authors: {
-    author: string
-    count: number
-  }[]
+  authors: ChartCountInterface[]
 }
 
 export interface KeywordsCountInterface {
-  keywords: {
-    keyword: string
-    count: number
-  }[]
+  keywords: ChartCountInterface[]
 }
 
 export interface SourcesCountInterface {
-  sources: {
-    source: string
-    count: number
-  }[]
+  sources: ChartCountInterface[]
 }
 
 export interface YearsCountInterface {
-  years: {
-    year: string
-    count: number
-  }[]
+  years: ChartCountInterface[]
 }
