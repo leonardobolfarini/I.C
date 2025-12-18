@@ -21,8 +21,8 @@ export function ChartBarComponent({
           </CardHeader>
           <CardContent className="h-[400px] w-full">
             <BarChart
-              width={500}
-              height={400}
+              width={1000}
+              height={500}
               data={chartBarData}
               margin={{
                 top: 20,

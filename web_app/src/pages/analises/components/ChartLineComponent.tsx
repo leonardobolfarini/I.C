@@ -25,7 +25,7 @@ export function ChartLineComponent({
           </CardHeader>
           <CardContent className="h-[400px] w-full">
             <LineChart
-              width={500}
+              width={1000}
               height={400}
               data={chartLineData}
               margin={{
