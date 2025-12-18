@@ -18,7 +18,7 @@ import {
   ChartWithoutData,
   Header,
 } from './styles'
-import { ChartBar, ChartLine } from '@phosphor-icons/react/dist/ssr'
+import { ChartBar, ChartLine, Download } from '@phosphor-icons/react/dist/ssr'
 import { MainLayout } from '../layout'
 import { ChartLineComponent } from './components/ChartLineComponent'
 import { colors } from '@/src/styles/colors'
@@ -29,6 +29,8 @@ import {
   YearsCountInterface,
 } from '@/src/lib/types'
 import Head from 'next/head'
+import { exportToCSV } from '@/src/utils/exportFile'
+import { LoadingIcon } from '@/src/styles/global'
 
 const getChartBarFormatFile = z.object({
   chartBarFile: z
@@ -122,7 +124,11 @@ export default function Charts() {
             type="submit"
           >
             Analisar
-            <PaperPlaneRight weight="bold" height={20} width={20} />
+            {isProcessing ? (
+              <LoadingIcon />
+            ) : (
+              <PaperPlaneRight weight="bold" height={20} width={20} />
+            )}
           </Button>
         </ChartsForm>
         <ChartsDisplayContainer>
@@ -148,6 +154,18 @@ export default function Charts() {
                       })) || []
                   }
                 />
+                <Button
+                  onClick={() =>
+                    exportToCSV(
+                      keywordsCount?.keywords || [],
+                      'allkeywords',
+                      'keyword',
+                    )
+                  }
+                >
+                  <Download size={20} />
+                  Baixar dados completos
+                </Button>
               </ChartViewContainer>
               <ChartViewContainer>
                 <ChartBarComponent
@@ -162,6 +180,18 @@ export default function Charts() {
                       })) || []
                   }
                 />
+                <Button
+                  onClick={() =>
+                    exportToCSV(
+                      authorsCount?.authors || [],
+                      'full_authors',
+                      'author',
+                    )
+                  }
+                >
+                  <Download size={20} />
+                  Baixar dados completos
+                </Button>
               </ChartViewContainer>
               <ChartViewContainer>
                 <ChartBarComponent
@@ -176,6 +206,18 @@ export default function Charts() {
                       })) || []
                   }
                 />
+                <Button
+                  onClick={() =>
+                    exportToCSV(
+                      sourcesCount?.sources || [],
+                      'full_sources',
+                      'source',
+                    )
+                  }
+                >
+                  <Download size={20} />
+                  Baixar dados completos
+                </Button>
               </ChartViewContainer>
             </ChartsBarViewDisplayContainer>
           ) : (
@@ -202,14 +244,23 @@ export default function Charts() {
                   dataListName="Últimos 10 anos"
                   chartBarData={
                     yearsCount?.years
-                      ?.sort((a, b) => b.count - a.count)
+                      ?.sort((a, b) => Number(b.year) - Number(a.year))
                       .slice(0, 10)
+                      .sort((a, b) => Number(a.year) - Number(b.year))
                       .map((source) => ({
                         name: source.year,
                         count: source.count,
                       })) || []
                   }
                 />
+                <Button
+                  onClick={() =>
+                    exportToCSV(yearsCount.years || [], 'full_years', 'year')
+                  }
+                >
+                  <Download size={20} />
+                  Baixar dados completos
+                </Button>
               </ChartViewContainer>
             </ChartLineViewDisplayContainer>
           ) : (
