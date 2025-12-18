@@ -20,6 +20,7 @@ import { MainLayout } from '../layout'
 import { Database } from '@phosphor-icons/react/dist/ssr'
 import { GeneratedFile } from './components/GeneratedFile'
 import Head from 'next/head'
+import { LoadingIcon } from '@/src/styles/global'
 
 const formFilesSchema = z.object({
   scopusFile: z
@@ -182,7 +183,11 @@ export default function SendDownloadView() {
           </FilesToSendContainer>
           <ButtonContainer>
             <Button colorButton="black" type="submit" disabled={isProcessing}>
-              <Database weight="bold" height={20} width={20} />
+              {isProcessing ? (
+                <LoadingIcon />
+              ) : (
+                <Database weight="bold" height={20} width={20} />
+              )}
               Mesclar Bases de Dados
             </Button>
           </ButtonContainer>
