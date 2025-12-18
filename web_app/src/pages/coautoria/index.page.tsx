@@ -18,20 +18,17 @@ import {
 } from './styles'
 import { FileInput } from '@/src/components/FileInput'
 import { Button } from '@/src/components/Button'
-import { PaperPlaneRight, Users } from '@phosphor-icons/react/dist/ssr'
+import {
+  Download,
+  PaperPlaneRight,
+  Users,
+} from '@phosphor-icons/react/dist/ssr'
 import { SigmaRender } from './components/SigmaRender'
 import { MainLayout } from '../layout'
 import { colors } from '@/src/styles/colors'
 import Head from 'next/head'
-
-export interface GraphElementFormat {
-  data: {
-    id?: string
-    label?: string
-    source?: string
-    target?: string
-  }
-}
+import { exportToPajek } from '@/src/utils/exportFile'
+import { LoadingIcon } from '@/src/styles/global'
 
 export interface GraphNodesFormat {
   data: {
@@ -65,7 +62,6 @@ const getGraphFormatFile = z.object({
 type GetGraphFormatFile = z.infer<typeof getGraphFormatFile>
 
 export default function Graph() {
-  const [graphData, setGraphData] = useState<GraphElementFormat[] | null>(null)
   const [nodes, setNodes] = useState<GraphNodesFormat[] | null>(null)
   const [edges, setEdges] = useState<GraphEdgesFormat[] | null>(null)
 
@@ -93,7 +89,6 @@ export default function Graph() {
 
     setNodes(response.nodes)
     setEdges(response.edges)
-    setGraphData([...response.nodes, ...response.edges])
   }
 
   return (
@@ -140,16 +135,34 @@ export default function Graph() {
             disabled={isProcessing}
           >
             Analisar
-            <PaperPlaneRight weight="bold" height={20} width={20} />
+            {isProcessing ? (
+              <LoadingIcon />
+            ) : (
+              <PaperPlaneRight weight="bold" height={20} width={20} />
+            )}
           </Button>
         </GraphViewForm>
         <GraphDisplayContainer>
           <GraphDisplayHeader>
-            <h3>Grafo de Coautoria</h3>
-            <span>Rede de colaborações entre pesquisadores</span>
+            <header>
+              <h3>Grafo de Coautoria</h3>
+              <span>Rede de colaborações entre pesquisadores</span>
+            </header>
+            {edges && nodes && (
+              <span>
+                <Button
+                  onClick={() =>
+                    exportToPajek({ edges, nodes }, 'rede_colaboracao')
+                  }
+                >
+                  <Download size={20} />
+                  Exportar Grafo (.net)
+                </Button>
+              </span>
+            )}
           </GraphDisplayHeader>
           <GraphDisplay>
-            {!graphData || !edges || !nodes ? (
+            {!edges || !nodes ? (
               <GraphDisplayWithoutData>
                 <Users size={50} color={colors.slate400} />
                 <h2>Grafo será exibido aqui</h2>
