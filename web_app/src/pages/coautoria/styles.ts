@@ -78,8 +78,8 @@ export const GraphDisplayContainer = styled('div', {
 
 export const GraphDisplayHeader = styled('div', {
   display: 'flex',
-  flexDirection: 'column',
-  gap: '0.5rem',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
 
   h3: {
     fontSize: '1.25rem',
