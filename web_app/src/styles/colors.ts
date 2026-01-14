@@ -24,6 +24,7 @@ export const colors = {
   green600: '#16a34a',
   green800: '#166534',
 
+  purple100: '#FAF5FF',
   purple500: '#a855f7',
   purple600: '#9333ea',
 
