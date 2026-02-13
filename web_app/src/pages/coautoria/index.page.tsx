@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { GetGraphFormat } from '@/src/api/get-graph-format'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { GetGraphFormat } from "@/src/api/get-graph-format";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   GraphDisplay,
   GraphDisplayContainer,
@@ -15,33 +15,35 @@ import {
   GraphViewFileContainer,
   GraphViewForm,
   GraphViewHeader,
-} from './styles'
-import { FileInput } from '@/src/components/FileInput'
-import { Button } from '@/src/components/Button'
+  RenderContainer,
+} from "./styles";
+import { FileInput } from "@/src/components/FileInput";
+import { Button } from "@/src/components/Button";
 import {
+  ArrowsOut,
   Download,
   PaperPlaneRight,
   Users,
-} from '@phosphor-icons/react/dist/ssr'
-import { SigmaRender } from './components/SigmaRender'
-import { MainLayout } from '../layout'
-import { colors } from '@/src/styles/colors'
-import Head from 'next/head'
-import { exportToPajek } from '@/src/utils/exportFile'
-import { LoadingIcon } from '@/src/styles/global'
+} from "@phosphor-icons/react/dist/ssr";
+import { SigmaRender } from "./components/SigmaRender";
+import { MainLayout } from "../layout";
+import { colors } from "@/src/styles/colors";
+import Head from "next/head";
+import { exportToPajek } from "@/src/utils/exportFile";
+import { LoadingIcon } from "@/src/styles/global";
 
 export interface GraphNodesFormat {
   data: {
-    id: string
-    label: string
-  }
+    id: string;
+    label: string;
+  };
 }
 
 export interface GraphEdgesFormat {
   data: {
-    source: string
-    target: string
-  }
+    source: string;
+    target: string;
+  };
 }
 
 const getGraphFormatFile = z.object({
@@ -51,23 +53,24 @@ const getGraphFormatFile = z.object({
       (files) =>
         files instanceof FileList &&
         files.length > 0 &&
-        (files[0].name.endsWith('.csv') || files[0].name.endsWith('.txt')),
+        (files[0].name.endsWith(".csv") || files[0].name.endsWith(".txt")),
       {
-        message: 'Selecione um arquivo',
+        message: "Selecione um arquivo",
       },
     )
     .transform((files) => files[0]),
-})
+});
 
-type GetGraphFormatFile = z.infer<typeof getGraphFormatFile>
+type GetGraphFormatFile = z.infer<typeof getGraphFormatFile>;
 
 export default function Graph() {
-  const [nodes, setNodes] = useState<GraphNodesFormat[] | null>(null)
-  const [edges, setEdges] = useState<GraphEdgesFormat[] | null>(null)
+  const [nodes, setNodes] = useState<GraphNodesFormat[] | null>(null);
+  const [edges, setEdges] = useState<GraphEdgesFormat[] | null>(null);
+  const [isFullSize, setIsFullSize] = useState<boolean>(false);
 
   const { mutateAsync: GetGraphFormatFn } = useMutation({
     mutationFn: GetGraphFormat,
-  })
+  });
 
   const {
     register,
@@ -76,19 +79,19 @@ export default function Graph() {
     formState: { errors, isSubmitting: isProcessing },
   } = useForm<GetGraphFormatFile>({
     resolver: zodResolver(getGraphFormatFile),
-  })
+  });
 
-  const graphFileValue = watch('graphFile')
+  const graphFileValue = watch("graphFile");
 
   async function handleSendGraphFileToFormat({
     graphFile,
   }: GetGraphFormatFile) {
     const response = await GetGraphFormatFn({
       graphFile,
-    })
+    });
 
-    setNodes(response.nodes)
-    setEdges(response.edges)
+    setNodes(response.nodes);
+    setEdges(response.edges);
   }
 
   return (
@@ -121,16 +124,16 @@ export default function Graph() {
               database=""
               accept=".csv, .txt"
               value={graphFileValue}
-              {...register('graphFile')}
+              {...register("graphFile")}
             />
             <span>
-              {errors.graphFile ? String(errors.graphFile.message) : ''}
+              {errors.graphFile ? String(errors.graphFile.message) : ""}
             </span>
           </GraphViewFileContainer>
 
           <Button
             colorButton="black"
-            style={{ marginTop: '1rem', marginLeft: 'auto' }}
+            style={{ marginTop: "1rem", marginLeft: "auto" }}
             type="submit"
             disabled={isProcessing}
           >
@@ -152,7 +155,7 @@ export default function Graph() {
               <span>
                 <Button
                   onClick={() =>
-                    exportToPajek({ edges, nodes }, 'rede_colaboracao')
+                    exportToPajek({ edges, nodes }, "rede_colaboracao")
                   }
                 >
                   <Download size={20} />
@@ -169,11 +172,24 @@ export default function Graph() {
                 <span>Faça upload de um arquivo para gerar a visualização</span>
               </GraphDisplayWithoutData>
             ) : (
-              <SigmaRender graphEdges={edges} graphNodes={nodes} />
+              <RenderContainer>
+                <span
+                  onClick={() => {
+                    setIsFullSize((ret) => !ret);
+                  }}
+                >
+                  <ArrowsOut size={24} />
+                </span>
+                <SigmaRender
+                  graphEdges={edges}
+                  graphNodes={nodes}
+                  isFullSize={isFullSize}
+                />
+              </RenderContainer>
             )}
           </GraphDisplay>
         </GraphDisplayContainer>
       </GraphViewContainer>
     </MainLayout>
-  )
+  );
 }
