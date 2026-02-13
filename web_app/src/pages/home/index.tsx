@@ -10,8 +10,8 @@ import {
   OurInfosContainer,
   UsedTechnologies,
   UsedTechnologiesContainer,
-} from './styles'
-import { MainLayout } from '../layout'
+} from "./styles";
+import { MainLayout } from "../layout";
 import {
   Code,
   Database,
@@ -21,9 +21,9 @@ import {
   Rocket,
   FileText,
   LinkedinLogo,
-} from '@phosphor-icons/react/dist/ssr'
-import Head from 'next/head'
-import Image from 'next/image'
+} from "@phosphor-icons/react/dist/ssr";
+import Head from "next/head";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -42,8 +42,9 @@ export default function Home() {
             <h1>Sobre o Software</h1>
           </div>
           <span>
-            Ferramenta completa para análise bibliométrica e visualização de
-            dados científicos
+            Ferramenta destinada para combinação de dados e análise
+            bibliométrica de dados científicso oriundos das bases de dados Web
+            of Science e Scopus
           </span>
         </HomeHeader>
         <DescriptionContainer>
@@ -85,7 +86,7 @@ export default function Home() {
               <h3>Análises Estatísticas</h3>
               <p>
                 Gere gráficos de barras para distribuições e análises temporais
-                de publicações e citações
+                de publicações
               </p>
             </div>
           </AppFunctionsCards>
@@ -100,8 +101,8 @@ export default function Home() {
             <div>
               <h3>Prepare seus dados</h3>
               <p>
-                Exporte seus dados do Scopus ou Web of Science nos formatos CSV,
-                XLSX ou XLS
+                Exporte seus dados do Scopus ou Web of Science nos formatos TXT,
+                CSV, XLSX ou XLS
               </p>
             </div>
           </HowToUseVariants>
@@ -113,8 +114,9 @@ export default function Home() {
             <div>
               <h3>Escolha a funcionalidade</h3>
               <p>
-                Navegue pelas abas e selecione a análise desejada: mesclagem,
-                coautoria ou estatísticas
+                Navegue pelas abas e selecione a análise desejada: mesclagem de
+                arquivos das bases (Scopus + Web of Science), rede coautoria ou
+                estatísticas
               </p>
             </div>
           </HowToUseVariants>
@@ -151,8 +153,8 @@ export default function Home() {
               <span>
                 <h3>Formatos Suportados</h3>
                 <p>
-                  CSV, XLSX, XLS - Compatível com exportações do Scopus e Web of
-                  Science
+                  TXT, CSV, XLSX, XLS - Compatível com exportações do Scopus e
+                  Web of Science
                 </p>
               </span>
             </div>
@@ -166,7 +168,7 @@ export default function Home() {
             </div>
           </UsedTechnologies>
         </UsedTechnologiesContainer>
-        <OurInfosContainer>
+        {/*<OurInfosContainer>
           <h2>Equipe</h2>
 
           <div>
@@ -177,9 +179,9 @@ export default function Home() {
               quality={100}
               alt="Team Photo"
               style={{
-                display: 'flex',
-                justifySelf: 'center',
-                objectFit: 'cover',
+                display: "flex",
+                justifySelf: "center",
+                objectFit: "cover",
               }}
             />
             <OurInfos>
@@ -224,8 +226,8 @@ export default function Home() {
               </div>
             </OurInfos>
           </div>
-        </OurInfosContainer>
+        </OurInfosContainer>*/}
       </HomeContainer>
     </MainLayout>
-  )
+  );
 }
