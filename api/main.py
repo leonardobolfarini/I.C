@@ -1,6 +1,7 @@
 import csv
 import io
 import os
+import sys
 import uuid
 import zipfile
 
@@ -11,6 +12,10 @@ import utils.graph as graph
 from flask import Flask, make_response, request, send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from scientometric_tools.analysis import merge_and_process_bibliometric_data_csv
 
 app = Flask(__name__)
 CORS(app)
@@ -36,72 +41,15 @@ def process_files():
     scopusFile = request.files["scopusFile"]
     wosFile = request.files["wosFile"]
 
-    requisition_id = str(uuid.uuid4())
+    wos_df = pd.read_csv(wosFile.stream, sep="\t")
+    scopus_df = pd.read_csv(scopusFile.stream, sep=",")
 
-    scopus_path_csv = os.path.join(UPLOAD_FOLDER, f"scopusFile_{requisition_id}.csv")
-    scopus_path_txt = os.path.join(UPLOAD_FOLDER, f"scopusFile_{requisition_id}.txt")
-    wos_path_txt = os.path.join(UPLOAD_FOLDER, f"wosFile_{requisition_id}.txt")
-    wos_path_csv = os.path.join(UPLOAD_FOLDER, f"wosFile_{requisition_id}.csv")
-    output_csv_path = os.path.join(OUTPUT_FOLDER, f"all_in_one_{requisition_id}.csv")
-    output_txt_path = os.path.join(OUTPUT_FOLDER, f"all_in_one_{requisition_id}.txt")
-    zip_path = os.path.join(OUTPUT_FOLDER, f"resultados_{requisition_id}.zip")
+    wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
+    scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
 
-    try:
-        scopusFile.save(scopus_path_csv)
-        wosFile.save(wos_path_txt)
-        wos_df = pd.read_csv(wos_path_txt, sep="\t")
-        scopus_df = pd.read_csv(scopus_path_csv, sep=",")
+    df = merge_and_process_bibliometric_data_csv(scopus_df, wos_df)
 
-        wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
-        scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
-
-        wos_df.to_csv(wos_path_txt, sep="\t", index=False)
-        wos_df = analysis.process_wos_data(wos_df, wos_path_txt, wos_path_csv)
-
-        scopus_df.to_csv(
-            scopus_path_csv, sep=",", quotechar='"', quoting=csv.QUOTE_ALL, index=False
-        )
-        scopus_df = analysis.process_scopus_data(scopus_path_csv, scopus_path_txt)
-
-        analysis.merge_and_process_files_in_csv(
-            scopus_path_csv, wos_path_csv, output_csv_path
-        )
-        analysis.merge_and_process_files_in_txt(
-            scopus_path_txt, wos_path_txt, output_txt_path
-        )
-
-        with zipfile.ZipFile(zip_path, "w") as zipf:
-            zipf.write(output_csv_path, arcname="all_in_one.csv")
-            zipf.write(output_txt_path, arcname="all_in_one.txt")
-
-        with open(zip_path, "rb") as f:
-            data = io.BytesIO(f.read())
-
-        os.remove(zip_path)
-
-        return send_file(
-            data,
-            download_name=f"resultados_{uuid.uuid4()}.zip",
-            as_attachment=True,
-            mimetype="application/zip",
-        )
-
-    except Exception as e:
-        return f"Erro ao unir arquivos: {str(e)}", 500
-
-    finally:
-        files_to_remove = [
-            scopus_path_csv,
-            scopus_path_txt,
-            wos_path_txt,
-            wos_path_csv,
-            output_csv_path,
-            output_txt_path,
-        ]
-
-        for f in files_to_remove:
-            if os.path.exists(f):
-                os.remove(f)
+    return df
 
 
 @app.route("/graph", methods=["Options", "Post"])
