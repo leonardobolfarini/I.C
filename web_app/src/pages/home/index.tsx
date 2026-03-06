@@ -50,7 +50,7 @@ export default function Home() {
         <DescriptionContainer>
           <h2>O que é?</h2>
           <p>
-            Esta aplicação foi desenvolvida para facilitar a análise de dados
+            A NB VIZ foi desenvolvida para facilitar a análise de dados
             bibliométricos provenientes das principais bases de dados
             científicas (Scopus e Web of Science). Com ela, você pode mesclar
             bases de dados, visualizar redes de colaboração entre pesquisadores
