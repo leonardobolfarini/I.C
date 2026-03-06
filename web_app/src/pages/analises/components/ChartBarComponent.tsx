@@ -1,11 +1,11 @@
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChartBarData } from '@/src/lib/types'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartBarData } from "@/src/lib/types";
 
 interface ChartBarComponentData {
-  dataListName: string
-  chartBarData: ChartBarData[]
+  dataListName: string;
+  chartBarData: ChartBarData[];
 }
 
 export function ChartBarComponent({
@@ -13,35 +13,33 @@ export function ChartBarComponent({
   chartBarData,
 }: ChartBarComponentData) {
   return (
-    <>
+    <Card>
+      <CardHeader>
+        <CardTitle>{dataListName}</CardTitle>
+      </CardHeader>
       {chartBarData && chartBarData.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>{dataListName}</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[400px] w-full">
-            <BarChart
-              width={1000}
-              height={500}
-              data={chartBarData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={150} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#2563eb" />
-            </BarChart>
-          </CardContent>
-        </Card>
+        <CardContent className="h-[400px] w-full">
+          <BarChart
+            width={1000}
+            height={500}
+            data={chartBarData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" angle={-45} textAnchor="end" height={150} />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#2563eb" />
+          </BarChart>
+        </CardContent>
       ) : (
         <h1>Nenhum dado disponível para exibição</h1>
       )}
-    </>
-  )
+    </Card>
+  );
 }
