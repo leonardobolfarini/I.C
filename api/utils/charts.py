@@ -1,7 +1,10 @@
+import time
+
 import pandas as pd
 
 
 def chart_bar_formatter(file_path, extension):
+    start = time.perf_counter()
     if extension == ".txt":
         sep = "\t"
         col_map = {"authors": "AU", "keywords": "DE", "source": "SO", "year": "PY"}
@@ -15,9 +18,9 @@ def chart_bar_formatter(file_path, extension):
         }
 
     try:
-        df = pd.read_csv(file_path, sep=sep, on_bad_lines="skip")
+        df = pd.read_csv(file_path, sep=sep, index_col=False, on_bad_lines="skip")
     except:
-        df = pd.read_csv(file_path, sep=",", on_bad_lines="skip")
+        df = pd.read_csv(file_path, sep=",", index_col=False, on_bad_lines="skip")
 
     def get_counts(column_name, output_key_name):
         if column_name not in df.columns:
@@ -45,5 +48,8 @@ def chart_bar_formatter(file_path, extension):
         {"sources": chart_source_data},
         {"years": chart_years_data},
     ]
+
+    end = time.perf_counter()
+    print(f"Tempo de execução para formatação dos gráficos: {end - start}s")
 
     return charts_data
