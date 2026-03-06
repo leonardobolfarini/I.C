@@ -1,6 +1,7 @@
 import csv
 import io
 import os
+import time
 import uuid
 import zipfile
 
@@ -32,6 +33,8 @@ def process_files():
 
     if "scopusFile" not in request.files or "wosFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
+
+    start = time.perf_counter()
 
     scopusFile = request.files["scopusFile"]
     wosFile = request.files["wosFile"]
@@ -79,6 +82,10 @@ def process_files():
 
         os.remove(zip_path)
 
+        end = time.perf_counter()
+
+        print(f"Tempo de fusão dos arquivos: {end - start}s")
+
         return send_file(
             data,
             download_name=f"resultados_{uuid.uuid4()}.zip",
@@ -116,7 +123,11 @@ def get_graph_format():
     if "graphFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
+    if "graphType" not in request.form:
+        return "Tipo de grafo não selecionado.", 400
+
     graphFile = request.files["graphFile"]
+    graph_type = request.form.get("graphType")
 
     filename = secure_filename(graphFile.filename or "")
     _, file_extension = os.path.splitext(filename)
@@ -127,9 +138,12 @@ def get_graph_format():
 
     try:
         graphFile.save(graph_file_path)
-        graph_data = graph.graph_formatter(graph_file_path, file_extension)
+        graph_data = graph.graph_formatter(graph_file_path, file_extension, graph_type)
         return graph_data
+    except ValueError as e:
+        return f"Coluna não encontrada: {str(e)}", 404
     except Exception as e:
+        print(str(e))
         return f"Erro ao processar arquivo: {str(e)}", 500
     finally:
         if os.path.exists(graph_file_path):
