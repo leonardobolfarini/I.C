@@ -6,21 +6,21 @@ import {
   FilesToSendContent,
   FilesToSendHeader,
   GeneratedFilesContainer,
-} from './styles'
-import { Button } from '../../components/Button'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { SendFiles } from '@/src/api/send-files'
-import { useState } from 'react'
-import { z } from 'zod'
-import JSZip from 'jszip'
-import { FileInput } from '@/src/components/FileInput'
-import { useMutation } from '@tanstack/react-query'
-import { MainLayout } from '../layout'
-import { Database } from '@phosphor-icons/react/dist/ssr'
-import { GeneratedFile } from './components/GeneratedFile'
-import Head from 'next/head'
-import { LoadingIcon } from '@/src/styles/global'
+} from "./styles";
+import { Button } from "../../components/Button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SendFiles } from "@/src/api/send-files";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import JSZip from "jszip";
+import { FileInput } from "@/src/components/FileInput";
+import { useMutation } from "@tanstack/react-query";
+import { MainLayout } from "../layout";
+import { Database } from "@phosphor-icons/react/dist/ssr";
+import { GeneratedFile } from "./components/GeneratedFile";
+import Head from "next/head";
+import { LoadingIcon } from "@/src/styles/global";
 
 const formFilesSchema = z.object({
   scopusFile: z
@@ -29,9 +29,9 @@ const formFilesSchema = z.object({
       (files) =>
         files instanceof FileList &&
         files.length > 0 &&
-        files[0].name.endsWith('.csv'),
+        files[0].name.endsWith(".csv"),
       {
-        message: 'Selecione um arquivo .csv para Scopus.',
+        message: "Selecione um arquivo .csv para Scopus.",
       },
     )
     .transform((files) => files[0]),
@@ -42,31 +42,31 @@ const formFilesSchema = z.object({
       (files) =>
         files instanceof FileList &&
         files.length > 0 &&
-        files[0].name.endsWith('.txt'),
+        files[0].name.endsWith(".txt"),
       {
-        message: 'Selecione um arquivo .txt para WoS.',
+        message: "Selecione um arquivo .txt para WoS.",
       },
     )
     .transform((files) => files[0]),
-})
+});
 
-export type FormFilesProps = z.infer<typeof formFilesSchema>
+export type FormFilesProps = z.infer<typeof formFilesSchema>;
 
 interface DownloadUrlsTypes {
   csvFile: {
-    csvUrl: string | null
-    csvFileName: string | null
-  }
+    csvUrl: string | null;
+    csvFileName: string | null;
+  };
   txtFile: {
-    txtUrl: string | null
-    txtFileName: string | null
-  }
+    txtUrl: string | null;
+    txtFileName: string | null;
+  };
 }
 
 export default function SendDownloadView() {
   const [downloadUrls, setDownloadUrls] = useState<DownloadUrlsTypes | null>(
     null,
-  )
+  );
 
   const {
     register,
@@ -75,24 +75,34 @@ export default function SendDownloadView() {
     formState: { errors, isSubmitting: isProcessing },
   } = useForm<FormFilesProps>({
     resolver: zodResolver(formFilesSchema),
-  })
+  });
 
   const { mutateAsync: sendFilesFn } = useMutation({
     mutationFn: SendFiles,
-  })
+  });
 
-  const scopusFileValue = watch('scopusFile')
-  const wosFileValue = watch('wosFile')
+  const scopusFileValue = watch("scopusFile");
+  const wosFileValue = watch("wosFile");
+
+  useEffect(() => {
+    if (downloadUrls) {
+      const generatedContainer = document.getElementById("generated");
+      generatedContainer?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [downloadUrls]);
 
   async function handleSendFiles(files: FormFilesProps) {
     try {
       const response = await sendFilesFn({
         scopusFile: files.scopusFile,
         wosFile: files.wosFile,
-      })
+      });
 
-      const blob = new Blob([response], { type: 'application/zip' })
-      const zip = await JSZip.loadAsync(blob)
+      const blob = new Blob([response], { type: "application/zip" });
+      const zip = await JSZip.loadAsync(blob);
       const extractedFiles: DownloadUrlsTypes = {
         csvFile: {
           csvFileName: null,
@@ -102,26 +112,33 @@ export default function SendDownloadView() {
           txtFileName: null,
           txtUrl: null,
         },
-      }
+      };
 
       for (const fileName of Object.keys(zip.files)) {
-        const file = zip.files[fileName]
+        const file = zip.files[fileName];
         if (!file.dir) {
-          const fileBlob = await file.async('blob')
-          const url = URL.createObjectURL(fileBlob)
-          if (fileName.endsWith('.csv')) {
-            extractedFiles.csvFile.csvUrl = url
-            extractedFiles.csvFile.csvFileName = fileName
-          } else if (fileName.endsWith('.txt')) {
-            extractedFiles.txtFile.txtUrl = url
-            extractedFiles.txtFile.txtFileName = fileName
+          const fileBlob = await file.async("blob");
+          const url = URL.createObjectURL(fileBlob);
+          if (fileName.endsWith(".csv")) {
+            extractedFiles.csvFile.csvUrl = url;
+            extractedFiles.csvFile.csvFileName = fileName;
+          } else if (fileName.endsWith(".txt")) {
+            extractedFiles.txtFile.txtUrl = url;
+            extractedFiles.txtFile.txtFileName = fileName;
           }
         }
       }
 
-      setDownloadUrls(extractedFiles)
+      setDownloadUrls(extractedFiles);
+      if (extractedFiles) {
+        const generatedContainer = document.getElementById("generated");
+        generatedContainer?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
     } catch (error) {
-      alert(error)
+      alert(error);
     }
   }
 
@@ -157,10 +174,10 @@ export default function SendDownloadView() {
                 database="Scopus"
                 accept=".csv"
                 value={scopusFileValue}
-                {...register('scopusFile')}
+                {...register("scopusFile")}
               />
               <span>
-                {errors.scopusFile ? String(errors.scopusFile.message) : ''}
+                {errors.scopusFile ? String(errors.scopusFile.message) : ""}
               </span>
             </FilesToSendContent>
 
@@ -174,10 +191,10 @@ export default function SendDownloadView() {
                 database="Web of Science"
                 accept=".txt"
                 value={wosFileValue}
-                {...register('wosFile')}
+                {...register("wosFile")}
               />
               <span>
-                {errors.wosFile ? String(errors.wosFile.message) : ''}
+                {errors.wosFile ? String(errors.wosFile.message) : ""}
               </span>
             </FilesToSendContent>
           </FilesToSendContainer>
@@ -193,7 +210,7 @@ export default function SendDownloadView() {
           </ButtonContainer>
         </FilesToSend>
         {downloadUrls !== null && (
-          <GeneratedFilesContainer>
+          <GeneratedFilesContainer id="generated">
             <h3>Arquivos Gerados</h3>
             <div>
               <GeneratedFile
@@ -211,5 +228,5 @@ export default function SendDownloadView() {
         )}
       </FilesContainer>
     </MainLayout>
-  )
+  );
 }
