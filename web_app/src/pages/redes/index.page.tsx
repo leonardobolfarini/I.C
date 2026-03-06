@@ -3,7 +3,7 @@
 import { GetGraphFormat } from "@/src/api/get-graph-format";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -11,18 +11,18 @@ import {
   GraphDisplayContainer,
   GraphDisplayHeader,
   GraphDisplayWithoutData,
+  GraphSelectionContainer,
   GraphViewContainer,
   GraphViewFileContainer,
   GraphViewForm,
   GraphViewHeader,
   RenderContainer,
 } from "./styles";
-import { FileInput } from "@/src/components/FileInput";
 import { Button } from "@/src/components/Button";
 import {
   ArrowsOut,
   Download,
-  PaperPlaneRight,
+  Hash,
   Users,
 } from "@phosphor-icons/react/dist/ssr";
 import { SigmaRender } from "./components/SigmaRender";
@@ -31,22 +31,14 @@ import { colors } from "@/src/styles/colors";
 import Head from "next/head";
 import { exportToPajek } from "@/src/utils/exportFile";
 import { LoadingIcon } from "@/src/styles/global";
-
-export interface GraphNodesFormat {
-  data: {
-    id: string;
-    label: string;
-  };
-}
-
-export interface GraphEdgesFormat {
-  data: {
-    source: string;
-    target: string;
-  };
-}
+import { FileInputInRow } from "@/src/components/FileInputInRow";
+import { GraphEdgesFormat, GraphNodesFormat } from "../types";
+import { SelectionType } from "./components/SelectionType";
 
 const getGraphFormatFile = z.object({
+  graphType: z.enum(["coauthorship", "keywords"], {
+    required_error: "Selecione o tipo de grafo",
+  }),
   graphFile: z
     .any()
     .refine(
@@ -76,18 +68,35 @@ export default function Graph() {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting: isProcessing },
+    setValue,
+    formState: { errors, isSubmitting: isProcessing, isValid },
   } = useForm<GetGraphFormatFile>({
     resolver: zodResolver(getGraphFormatFile),
+    defaultValues: {
+      graphType: "coauthorship",
+    },
   });
 
   const graphFileValue = watch("graphFile");
+  const graphType = watch("graphType");
+
+  useEffect(() => {
+    if (nodes && edges) {
+      const graphContainer = document.getElementById("graphContainer");
+      graphContainer?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [nodes, edges]);
 
   async function handleSendGraphFileToFormat({
     graphFile,
+    graphType,
   }: GetGraphFormatFile) {
     const response = await GetGraphFormatFn({
       graphFile,
+      graphType,
     });
 
     setNodes(response.nodes);
@@ -97,10 +106,10 @@ export default function Graph() {
   return (
     <MainLayout>
       <Head>
-        <title>Coautoria</title>
+        <title>Redes</title>
         <meta
           name="description"
-          content="Page where you can analyze co-authorship networks."
+          content="Page where you can analyze co-authorship and keywords networks."
         />
       </Head>
       <GraphViewContainer>
@@ -111,15 +120,32 @@ export default function Graph() {
           <GraphViewHeader>
             <header>
               <Users size={24} />
-              <h1>Análise de Rede de Coautoria</h1>
+              <h1>Análise de Redes</h1>
             </header>
             <footer>
-              Visualize as colaborações entre autores através de grafos
-              interativos.
+              Visualize grafos de coautoria ou palavras-chave a partir dos seus
+              dados
             </footer>
           </GraphViewHeader>
           <GraphViewFileContainer>
-            <FileInput
+            <GraphSelectionContainer>
+              <SelectionType
+                isActive={graphType === "coauthorship"}
+                icon={Users}
+                onClick={() => setValue("graphType", "coauthorship")}
+              >
+                Coautoria
+              </SelectionType>
+              <SelectionType
+                isActive={graphType === "keywords"}
+                icon={Hash}
+                onClick={() => setValue("graphType", "keywords")}
+              >
+                Palavras-chave
+              </SelectionType>
+            </GraphSelectionContainer>
+            <span>{errors.graphType?.message}</span>
+            <FileInputInRow
               idhtml="graphFile"
               database=""
               accept=".csv, .txt"
@@ -133,23 +159,48 @@ export default function Graph() {
 
           <Button
             colorButton="black"
-            style={{ marginTop: "1rem", marginLeft: "auto" }}
+            style={{
+              marginTop: "1rem",
+              marginLeft: "auto",
+              marginRight: "auto",
+              width: "25%",
+            }}
             type="submit"
-            disabled={isProcessing}
+            disabled={isProcessing || !isValid}
           >
-            Analisar
             {isProcessing ? (
               <LoadingIcon />
             ) : (
-              <PaperPlaneRight weight="bold" height={20} width={20} />
+              <>
+                {graphType == "coauthorship" ? (
+                  <>
+                    <Users weight="bold" height={20} width={20} />
+                    <p>Gerar Grafo de Coautoria</p>
+                  </>
+                ) : (
+                  <>
+                    <Hash weight="bold" height={20} width={20} />
+                    <p>Gerar Grafo de Palvras-chave</p>
+                  </>
+                )}
+              </>
             )}
           </Button>
         </GraphViewForm>
         <GraphDisplayContainer>
           <GraphDisplayHeader>
             <header>
-              <h3>Grafo de Coautoria</h3>
-              <span>Rede de colaborações entre pesquisadores</span>
+              {graphType == "coauthorship" ? (
+                <>
+                  <h3>Grafo de Coautoria</h3>
+                  <span>Rede de colaborações entre pesquisadores</span>
+                </>
+              ) : (
+                <>
+                  <h3>Grafo de Palvras-chave</h3>
+                  <span>Rede de co-ocorrencia de palvras-chave</span>
+                </>
+              )}
             </header>
             {edges && nodes && (
               <span>
@@ -167,12 +218,16 @@ export default function Graph() {
           <GraphDisplay>
             {!edges || !nodes ? (
               <GraphDisplayWithoutData>
-                <Users size={50} color={colors.slate400} />
+                {graphType == "coauthorship" ? (
+                  <Users size={50} color={colors.slate400} />
+                ) : (
+                  <Hash size={50} color={colors.slate400} />
+                )}
                 <h2>Grafo será exibido aqui</h2>
                 <span>Faça upload de um arquivo para gerar a visualização</span>
               </GraphDisplayWithoutData>
             ) : (
-              <RenderContainer>
+              <RenderContainer id="graphContainer">
                 <span
                   onClick={() => {
                     setIsFullSize((ret) => !ret);

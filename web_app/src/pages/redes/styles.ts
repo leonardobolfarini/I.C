@@ -54,8 +54,16 @@ export const GraphViewForm = styled("div", {});
 
 export const GraphViewFileContainer = styled("div", {
   display: "flex",
+  flexDirection: "column",
+
+  gap: "1.5rem",
+});
+
+export const GraphSelectionContainer = styled("div", {
+  display: "flex",
   flexDirection: "row",
-  alignItems: "center",
+  alignItems: "start",
+  gap: "1rem",
 });
 
 export const GraphDisplayContainer = styled("div", {
