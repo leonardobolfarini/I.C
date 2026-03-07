@@ -19,6 +19,11 @@ def chart_bar_formatter(file_path, extension):
 
     try:
         df = pd.read_csv(file_path, sep=sep, index_col=False, on_bad_lines="skip")
+        year_col = col_map["year"]
+
+        df[year_col] = pd.to_numeric(df[year_col], errors="coerce")
+        df = df.dropna(subset=[year_col]).copy()
+        df[year_col] = df[year_col].astype(int)
     except:
         df = pd.read_csv(file_path, sep=",", index_col=False, on_bad_lines="skip")
 
@@ -39,7 +44,6 @@ def chart_bar_formatter(file_path, extension):
     chart_authors_data = get_counts(col_map["authors"], "label")
     chart_keywords_data = get_counts(col_map["keywords"], "label")
     chart_source_data = get_counts(col_map["source"], "label")
-
     chart_years_data = get_counts(col_map["year"], "label")
 
     charts_data = [
