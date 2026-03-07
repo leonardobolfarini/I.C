@@ -52,7 +52,13 @@ def process_files():
     try:
         scopusFile.save(scopus_path_csv)
         wosFile.save(wos_path_txt)
-        wos_df = pd.read_csv(wos_path_txt, sep="\t")
+        wos_df = pd.read_csv(
+            wos_path_txt,
+            sep="\t",
+            quoting=csv.QUOTE_NONE,
+            on_bad_lines="skip",
+            dtype=str,
+        )
         scopus_df = pd.read_csv(scopus_path_csv, sep=",")
 
         wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
