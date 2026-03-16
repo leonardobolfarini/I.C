@@ -1,55 +1,55 @@
-import { Export } from '@phosphor-icons/react/dist/ssr'
-import { FileInputContent, FileInputLabel, FileInputStyle } from './styles'
-import { colors } from '@/src/styles/colors'
+import { colors } from "@/src/styles/colors";
+import { Export } from "@phosphor-icons/react/dist/ssr";
 import React, {
   forwardRef,
+  useImperativeHandle,
+  useMemo,
   useRef,
   useState,
-  useMemo,
-  useImperativeHandle,
-} from 'react'
+} from "react";
+import { FileInputContent, FileInputLabel, FileInputStyle } from "./styles";
 
 interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  idhtml: string
-  database?: string
+  idhtml: string;
+  database?: string;
 }
 
 export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
   function FileInput(props: FileInputProps, ref) {
-    const { idhtml, database, value, onChange, ...rest } = props
-    const [dragOver, setDragOver] = useState(false)
-    const inputRef = useRef<HTMLInputElement>(null)
+    const { idhtml, database, value, onChange, ...rest } = props;
+    const [dragOver, setDragOver] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    useImperativeHandle(ref, () => inputRef.current!)
+    useImperativeHandle(ref, () => inputRef.current!);
 
     const filename = useMemo(() => {
       if (
-        typeof FileList !== 'undefined' &&
+        typeof FileList !== "undefined" &&
         value instanceof FileList &&
         value.length > 0
       ) {
-        return value[0].name
+        return value[0].name;
       }
-      return null
-    }, [value])
+      return null;
+    }, [value]);
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
       if (onChange) {
-        onChange(event)
+        onChange(event);
       }
     }
 
     function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
-      event.preventDefault()
-      setDragOver(false)
+      event.preventDefault();
+      setDragOver(false);
 
-      const file = event.dataTransfer.files?.[0]
+      const file = event.dataTransfer.files?.[0];
       if (file && inputRef.current) {
-        const dataTransfer = new DataTransfer()
-        dataTransfer.items.add(file)
-        inputRef.current.files = dataTransfer.files
-        const changeEvent = new Event('change', { bubbles: true })
-        inputRef.current.dispatchEvent(changeEvent)
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        inputRef.current.files = dataTransfer.files;
+        const changeEvent = new Event("change", { bubbles: true });
+        inputRef.current.dispatchEvent(changeEvent);
       }
     }
 
@@ -57,18 +57,18 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
       <FileInputLabel
         htmlFor={idhtml}
         onDragOver={(e) => {
-          e.preventDefault()
-          setDragOver(true)
+          e.preventDefault();
+          setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         style={{
-          border: dragOver ? '2px dashed #21A485' : '2px dashed #ccc',
-          backgroundColor: dragOver ? '#f0fdf9' : '#fff',
-          padding: '2rem',
-          borderRadius: '8px',
-          textAlign: 'center',
-          cursor: 'pointer',
+          border: dragOver ? "2px dashed #21A485" : "2px dashed #ccc",
+          backgroundColor: dragOver ? "#f0fdf9" : "#fff",
+          padding: "2rem",
+          borderRadius: "8px",
+          textAlign: "center",
+          cursor: "pointer",
         }}
       >
         <FileInputContent>
@@ -116,6 +116,6 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
           {...rest}
         />
       </FileInputLabel>
-    )
+    );
   },
-)
+);

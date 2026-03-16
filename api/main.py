@@ -1,7 +1,7 @@
 import csv
 import io
 import os
-import sys
+import time
 import uuid
 import zipfile
 
@@ -38,6 +38,8 @@ def process_files():
     if "scopusFile" not in request.files or "wosFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
+    start = time.perf_counter()
+
     scopusFile = request.files["scopusFile"]
     wosFile = request.files["wosFile"]
 
@@ -49,7 +51,60 @@ def process_files():
 
     df = merge_and_process_bibliometric_data_csv(scopus_df, wos_df)
 
-    return df
+        wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
+        scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
+
+        wos_df.to_csv(wos_path_txt, sep="\t", index=False)
+        wos_df = analysis.process_wos_data(wos_df, wos_path_txt, wos_path_csv)
+
+        scopus_df.to_csv(
+            scopus_path_csv, sep=",", quotechar='"', quoting=csv.QUOTE_ALL, index=False
+        )
+        scopus_df = analysis.process_scopus_data(scopus_path_csv, scopus_path_txt)
+
+        analysis.merge_and_process_files_in_csv(
+            scopus_path_csv, wos_path_csv, output_csv_path
+        )
+        analysis.merge_and_process_files_in_txt(
+            scopus_path_txt, wos_path_txt, output_txt_path
+        )
+
+        with zipfile.ZipFile(zip_path, "w") as zipf:
+            zipf.write(output_csv_path, arcname="all_in_one.csv")
+            zipf.write(output_txt_path, arcname="all_in_one.txt")
+
+        with open(zip_path, "rb") as f:
+            data = io.BytesIO(f.read())
+
+        os.remove(zip_path)
+
+        end = time.perf_counter()
+
+        print(f"Tempo de fusão dos arquivos: {end - start}s")
+
+        return send_file(
+            data,
+            download_name=f"resultados_{uuid.uuid4()}.zip",
+            as_attachment=True,
+            mimetype="application/zip",
+        )
+
+    except Exception as e:
+        return f"Erro ao unir arquivos: {str(e)}", 500
+
+    finally:
+        files_to_remove = [
+            scopus_path_csv,
+            scopus_path_txt,
+            wos_path_txt,
+            wos_path_csv,
+            output_csv_path,
+            output_txt_path,
+        ]
+
+        for f in files_to_remove:
+            if os.path.exists(f):
+                os.remove(f)
 
 
 @app.route("/graph", methods=["Options", "Post"])
@@ -64,7 +119,11 @@ def get_graph_format():
     if "graphFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
+    if "graphType" not in request.form:
+        return "Tipo de grafo não selecionado.", 400
+
     graphFile = request.files["graphFile"]
+    graph_type = request.form.get("graphType")
 
     filename = secure_filename(graphFile.filename or "")
     _, file_extension = os.path.splitext(filename)
@@ -75,9 +134,12 @@ def get_graph_format():
 
     try:
         graphFile.save(graph_file_path)
-        graph_data = graph.graph_formatter(graph_file_path, file_extension)
+        graph_data = graph.graph_formatter(graph_file_path, file_extension, graph_type)
         return graph_data
+    except ValueError as e:
+        return f"Coluna não encontrada: {str(e)}", 404
     except Exception as e:
+        print(str(e))
         return f"Erro ao processar arquivo: {str(e)}", 500
     finally:
         if os.path.exists(graph_file_path):

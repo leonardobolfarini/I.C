@@ -1,9 +1,9 @@
 import Graph from "graphology";
-import { GraphEdgesFormat, GraphNodesFormat } from "../../index.page";
 import { useEffect, useRef, useState } from "react";
 import { Sigma } from "sigma";
 import FA2Layout from "graphology-layout-forceatlas2/worker";
 import forceAtlas2 from "graphology-layout-forceatlas2";
+import { GraphEdgesFormat, GraphNodesFormat } from "@/src/pages/types";
 
 interface SigmaRenderProps {
   graphNodes: GraphNodesFormat[];
@@ -27,6 +27,8 @@ export function SigmaRender({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    setIsLoading(true);
+
     let timeoutId: NodeJS.Timeout;
 
     const initSigma = async () => {
@@ -44,7 +46,13 @@ export function SigmaRender({
       });
 
       graphEdges.forEach((edge) => {
-        graph.addEdge(edge.data.source, edge.data.target, { color: "#ccc" });
+        graph.addEdge(edge.data.source, edge.data.target, {
+          color: "#ccc",
+          size: 2,
+          weight: edge.data.weight,
+          label: "",
+          originalLabel: String(edge.data.weight),
+        });
       });
 
       const sensibleSettings = forceAtlas2.inferSettings(graph);
@@ -69,7 +77,13 @@ export function SigmaRender({
         if (containerRef.current && !sigmaInstanceRef.current) {
           const sigma = new Sigma(graph, containerRef.current, {
             allowInvalidContainer: true,
-            renderEdgeLabels: false,
+            renderEdgeLabels: true,
+            edgeLabelSize: 18,
+            edgeLabelColor: { color: "#000" },
+
+            enableEdgeEvents: true,
+
+            labelRenderedSizeThreshold: 0,
           });
 
           let hoveredNode: string | null = null;
@@ -90,8 +104,23 @@ export function SigmaRender({
             });
 
             graph.forEachEdge((edge) => {
-              const color = graph.hasExtremity(edge, node) ? "#E41A1C" : "#ccc";
-              graph.setEdgeAttribute(edge, "color", color);
+              const isConnected = graph.hasExtremity(edge, node);
+
+              if (isConnected) {
+                graph.setEdgeAttribute(edge, "color", "#E41A1C");
+                graph.setEdgeAttribute(
+                  edge,
+                  "label",
+                  graph.getEdgeAttribute(edge, "originalLabel"),
+                );
+                graph.setEdgeAttribute(edge, "size", 4);
+                graph.setEdgeAttribute(edge, "zIndex", 1);
+              } else {
+                graph.setEdgeAttribute(edge, "color", "#ccc");
+                graph.setEdgeAttribute(edge, "label", "");
+                graph.setEdgeAttribute(edge, "size", 2);
+                graph.setEdgeAttribute(edge, "zIndex", 0);
+              }
             });
           });
 
@@ -102,6 +131,44 @@ export function SigmaRender({
             });
             graph.forEachEdge((edge) => {
               graph.setEdgeAttribute(edge, "color", "#ccc");
+              graph.setEdgeAttribute(edge, "label", "");
+              graph.setEdgeAttribute(edge, "size", 2);
+              graph.setEdgeAttribute(edge, "zIndex", 0);
+            });
+          });
+
+          sigma.on("enterEdge", ({ edge }) => {
+            graph.forEachNode((node) => {
+              const isConnected = graph.hasExtremity(edge, node);
+
+              if (isConnected) {
+                graph.setNodeAttribute(node, "color", "#E41A1C");
+                graph.setNodeAttribute(node, "size", 5);
+              } else {
+                graph.setNodeAttribute(node, "color", "#999");
+                graph.setNodeAttribute(node, "size", 3);
+              }
+            });
+
+            graph.setEdgeAttribute(edge, "color", "#E41A1C");
+            graph.setEdgeAttribute(
+              edge,
+              "label",
+              graph.getEdgeAttribute(edge, "originalLabel"),
+            );
+            graph.setEdgeAttribute(edge, "size", 4);
+            graph.setEdgeAttribute(edge, "zIndex", 1);
+          });
+
+          sigma.on("leaveEdge", ({ edge }) => {
+            graph.setEdgeAttribute(edge, "color", "#ccc");
+            graph.setEdgeAttribute(edge, "label", "");
+            graph.setEdgeAttribute(edge, "size", 2);
+            graph.setEdgeAttribute(edge, "zIndex", 0);
+
+            graph.forEachNode((node) => {
+              graph.setNodeAttribute(node, "color", "#999");
+              graph.setNodeAttribute(node, "size", 3);
             });
           });
 

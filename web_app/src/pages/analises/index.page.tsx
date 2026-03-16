@@ -1,13 +1,12 @@
-import { z } from 'zod'
-import { ChartBarComponent } from './components/ChartBarComponent'
-import { useMutation } from '@tanstack/react-query'
-import { GetChartBarFormat } from '@/src/api/get-chart-bar-format'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { FileInput } from '@/src/components/FileInput'
-import { Button } from '@/src/components/Button'
-import { PaperPlaneRight } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { z } from "zod";
+import { ChartBarComponent } from "./components/ChartBarComponent";
+import { useMutation } from "@tanstack/react-query";
+import { GetChartBarFormat } from "@/src/api/get-chart-bar-format";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/src/components/Button";
+import { PaperPlaneRight } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
 import {
   ChartLineViewDisplayContainer,
   ChartsBarViewDisplayContainer,
@@ -17,20 +16,22 @@ import {
   ChartViewContainer,
   ChartWithoutData,
   Header,
-} from './styles'
-import { ChartBar, ChartLine, Download } from '@phosphor-icons/react/dist/ssr'
-import { MainLayout } from '../layout'
-import { ChartLineComponent } from './components/ChartLineComponent'
-import { colors } from '@/src/styles/colors'
+  InputContainer,
+} from "./styles";
+import { ChartBar, ChartLine, Download } from "@phosphor-icons/react/dist/ssr";
+import { MainLayout } from "../layout";
+import { ChartLineComponent } from "./components/ChartLineComponent";
+import { colors } from "@/src/styles/colors";
 import {
   AuthorsCountInterface,
   KeywordsCountInterface,
   SourcesCountInterface,
   YearsCountInterface,
-} from '@/src/lib/types'
-import Head from 'next/head'
-import { exportToCSV } from '@/src/utils/exportFile'
-import { LoadingIcon } from '@/src/styles/global'
+} from "@/src/lib/types";
+import Head from "next/head";
+import { exportToCSV } from "@/src/utils/exportFile";
+import { LoadingIcon } from "@/src/styles/global";
+import { FileInputInRow } from "@/src/components/FileInputInRow";
 
 const getChartBarFormatFile = z.object({
   chartBarFile: z
@@ -39,29 +40,31 @@ const getChartBarFormatFile = z.object({
       (files) =>
         (files instanceof FileList &&
           files.length > 0 &&
-          files[0].name.endsWith('.csv')) ||
-        files[0].name.endsWith('.txt'),
+          files[0].name.endsWith(".csv")) ||
+        files[0].name.endsWith(".txt"),
       {
-        message: 'Selecione um arquivo .csv para Scopus.',
+        message: "Selecione um arquivo .csv para Scopus.",
       },
     )
     .transform((files) => files[0]),
-})
+});
 
-type GetChartBarFormatFile = z.infer<typeof getChartBarFormatFile>
+type GetChartBarFormatFile = z.infer<typeof getChartBarFormatFile>;
 
 export default function Charts() {
   const [authorsCount, setAuthorsCount] =
-    useState<AuthorsCountInterface | null>(null)
+    useState<AuthorsCountInterface | null>(null);
   const [keywordsCount, setKeywordsCount] =
-    useState<KeywordsCountInterface | null>(null)
+    useState<KeywordsCountInterface | null>(null);
   const [sourcesCount, setSourcesCount] =
-    useState<SourcesCountInterface | null>(null)
-  const [yearsCount, setYearsCount] = useState<YearsCountInterface | null>(null)
+    useState<SourcesCountInterface | null>(null);
+  const [yearsCount, setYearsCount] = useState<YearsCountInterface | null>(
+    null,
+  );
 
   const { mutateAsync: getChartBarFormatFn } = useMutation({
     mutationFn: GetChartBarFormat,
-  })
+  });
 
   const {
     register,
@@ -70,21 +73,30 @@ export default function Charts() {
     formState: { errors, isSubmitting: isProcessing },
   } = useForm<GetChartBarFormatFile>({
     resolver: zodResolver(getChartBarFormatFile),
-  })
+  });
 
-  const chartFileValue = watch('chartBarFile')
+  const chartFileValue = watch("chartBarFile");
+
+  useEffect(() => {
+    const chartContainer = document.getElementById("chartContainer");
+
+    chartContainer?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [authorsCount, keywordsCount, sourcesCount, yearsCount]);
 
   async function handleGetChartBarFormat({
     chartBarFile,
   }: GetChartBarFormatFile) {
     const { authors, keywords, sources, years } = await getChartBarFormatFn({
       chartBarFile,
-    })
+    });
 
-    setAuthorsCount(authors)
-    setKeywordsCount(keywords)
-    setSourcesCount(sources)
-    setYearsCount(years)
+    setAuthorsCount(authors);
+    setKeywordsCount(keywords);
+    setSourcesCount(sources);
+    setYearsCount(years);
   }
   return (
     <MainLayout>
@@ -107,18 +119,20 @@ export default function Charts() {
               temporal
             </footer>
           </Header>
-          <FileInput
-            idhtml="chartBarFile"
-            accept=".csv, .txt"
-            value={chartFileValue}
-            {...register('chartBarFile')}
-          />
-          <span>
-            {errors.chartBarFile ? String(errors.chartBarFile.message) : ''}
-          </span>
+          <InputContainer>
+            <FileInputInRow
+              idhtml="chartBarFile"
+              accept=".csv, .txt"
+              value={chartFileValue}
+              {...register("chartBarFile")}
+            />
+            <span>
+              {errors.chartBarFile ? String(errors.chartBarFile.message) : ""}
+            </span>
+          </InputContainer>
           <Button
             colorButton="black"
-            style={{ marginTop: '1rem', marginLeft: 'auto' }}
+            style={{ marginTop: "1rem", marginLeft: "auto" }}
             disabled={isProcessing}
             type="submit"
           >
@@ -139,10 +153,10 @@ export default function Charts() {
             <footer>Análise quantitativa por categorias</footer>
           </Header>
           {keywordsCount || authorsCount || sourcesCount ? (
-            <ChartsBarViewDisplayContainer>
+            <ChartsBarViewDisplayContainer id="chartContainer">
               <ChartViewContainer>
                 <ChartBarComponent
-                  dataListName="10 palavras-chaves mais citadas"
+                  dataListName="10 palavras-chaves com maior ocorrência"
                   chartBarData={
                     keywordsCount?.keywords
                       ?.sort((a, b) => b.count - a.count)
@@ -153,22 +167,24 @@ export default function Charts() {
                       })) || []
                   }
                 />
-                <Button
-                  onClick={() =>
-                    exportToCSV(
-                      keywordsCount?.keywords || [],
-                      'allkeywords',
-                      'keyword',
-                    )
-                  }
-                >
-                  <Download size={20} />
-                  Baixar dados completos
-                </Button>
+                {keywordsCount!.keywords.length > 0 && (
+                  <Button
+                    onClick={() =>
+                      exportToCSV(
+                        keywordsCount?.keywords || [],
+                        "allkeywords",
+                        "keyword",
+                      )
+                    }
+                  >
+                    <Download size={20} />
+                    Baixar dados completos
+                  </Button>
+                )}
               </ChartViewContainer>
               <ChartViewContainer>
                 <ChartBarComponent
-                  dataListName="10 autores mais citados"
+                  dataListName="10 autores mais produtivos"
                   chartBarData={
                     authorsCount?.authors
                       ?.sort((a, b) => b.count - a.count)
@@ -179,22 +195,24 @@ export default function Charts() {
                       })) || []
                   }
                 />
-                <Button
-                  onClick={() =>
-                    exportToCSV(
-                      authorsCount?.authors || [],
-                      'full_authors',
-                      'author',
-                    )
-                  }
-                >
-                  <Download size={20} />
-                  Baixar dados completos
-                </Button>
+                {authorsCount!.authors.length > 0 && (
+                  <Button
+                    onClick={() =>
+                      exportToCSV(
+                        authorsCount?.authors || [],
+                        "full_authors",
+                        "author",
+                      )
+                    }
+                  >
+                    <Download size={20} />
+                    Baixar dados completos
+                  </Button>
+                )}
               </ChartViewContainer>
               <ChartViewContainer>
                 <ChartBarComponent
-                  dataListName="10 fontes mais citadas"
+                  dataListName="10 fontes mais produtivas"
                   chartBarData={
                     sourcesCount?.sources
                       ?.sort((a, b) => b.count - a.count)
@@ -205,18 +223,20 @@ export default function Charts() {
                       })) || []
                   }
                 />
-                <Button
-                  onClick={() =>
-                    exportToCSV(
-                      sourcesCount?.sources || [],
-                      'full_sources',
-                      'source',
-                    )
-                  }
-                >
-                  <Download size={20} />
-                  Baixar dados completos
-                </Button>
+                {sourcesCount!.sources.length > 0 && (
+                  <Button
+                    onClick={() =>
+                      exportToCSV(
+                        sourcesCount?.sources || [],
+                        "full_sources",
+                        "source",
+                      )
+                    }
+                  >
+                    <Download size={20} />
+                    Baixar dados completos
+                  </Button>
+                )}
               </ChartViewContainer>
             </ChartsBarViewDisplayContainer>
           ) : (
@@ -247,14 +267,14 @@ export default function Charts() {
                       .slice(0, 10)
                       .sort((a, b) => Number(a.label) - Number(b.label))
                       .map((source) => ({
-                        name: source.label,
+                        name: String(Math.trunc(Number(source.label))),
                         count: source.count,
                       })) || []
                   }
                 />
                 <Button
                   onClick={() =>
-                    exportToCSV(yearsCount.years || [], 'full_years', 'year')
+                    exportToCSV(yearsCount.years || [], "full_years", "year")
                   }
                 >
                   <Download size={20} />
@@ -274,5 +294,5 @@ export default function Charts() {
         </ChartsDisplayContainer>
       </ChartsContainer>
     </MainLayout>
-  )
+  );
 }
