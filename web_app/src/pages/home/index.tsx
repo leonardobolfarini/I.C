@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <MainLayout>
       <Head>
-        <title>Sobre</title>
+        <title>NBVIZ | Sobre</title>
         <meta
           name="description"
           content="Home page that gives an overview of the project."

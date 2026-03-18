@@ -145,7 +145,7 @@ export default function SendDownloadView() {
   return (
     <MainLayout>
       <Head>
-        <title>Mesclagem</title>
+        <title>NBVIZ | Mesclagem</title>
         <meta
           name="description"
           content="Page where users can upload and merge database files."

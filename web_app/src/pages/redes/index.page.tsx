@@ -106,7 +106,7 @@ export default function Graph() {
   return (
     <MainLayout>
       <Head>
-        <title>Redes</title>
+        <title>NBVIZ | Redes</title>
         <meta
           name="description"
           content="Page where you can analyze co-authorship and keywords networks."

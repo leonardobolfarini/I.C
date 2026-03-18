@@ -102,7 +102,7 @@ export default function Charts() {
   return (
     <MainLayout>
       <Head>
-        <title>Analises</title>
+        <title>NBVIZ | Analises</title>
         <meta
           name="description"
           content="Page where users can upload files to generate statistical charts and temporal analysis."
