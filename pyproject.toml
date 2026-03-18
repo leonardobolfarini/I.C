@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nbviz_scientometric_tools"
+version = "0.2.3"
+description = "Ferramentas para análise bibliométrica e cienciométrica das bases de dados Web of Science e Scopus"
+readme = "nbviz_scientometric_tools/README.md"
+dependencies = [
+    "pandas",
+    "unidecode",
+]
+
+[tool.setuptools]
+packages = ["nbviz_scientometric_tools"]
