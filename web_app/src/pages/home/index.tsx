@@ -21,6 +21,7 @@ import {
   Rocket,
   FileText,
   LinkedinLogo,
+  FilePyIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import Head from "next/head";
 import Image from "next/image";
@@ -163,7 +164,12 @@ export default function Home() {
               <BookBookmark size={20} />
               <span>
                 <h3>Biblioteca Python</h3>
-                <p>Ainda não implementado.</p>
+                <a
+                  href="https://pypi.org/project/nbviz-scientometric-tools/"
+                  target="_blank"
+                >
+                  Link para o PyPI
+                </a>
               </span>
             </div>
           </UsedTechnologies>
