@@ -46,5 +46,7 @@ npm start
 
 ---
 
-**Pesquisador:** Leonardo Neves Bolfarini | **Orientador:** Rafael Gutierres Castanha  
-**Instituição:** Universidade de Marília (UNIMAR)
+<center>
+    <strong>Pesquisador:</strong> Leonardo Neves Bolfarini | <strong>Orientador:</strong> Rafael Gutierres Castanha  
+</center>
+<center><strong>Instituição:</strong> Universidade de Marília (UNIMAR)</center>
