@@ -237,4 +237,4 @@ def get_chart_format():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5009, debug=True)
+    app.run(host="0.0.0.0", port=5009, debug=False)
