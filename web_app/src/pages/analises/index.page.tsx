@@ -98,6 +98,7 @@ export default function Charts() {
     setSourcesCount(sources);
     setYearsCount(years);
   }
+
   return (
     <MainLayout>
       <Head>
