@@ -1,21 +1,16 @@
 import csv
 import io
 import os
-import time
 import uuid
 import zipfile
 
 import pandas as pd
-import utils.analysis_functions as analysis
-import utils.charts as charts
-import utils.graph as graph
 from flask import Flask, make_response, request, send_file
 from flask_cors import CORS
+from utils.expections import NotImplementedYet
 from werkzeug.utils import secure_filename
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from scientometric_tools.analysis import merge_and_process_bibliometric_data_csv
+import nbviz_scientometric_tools as st
 
 app = Flask(__name__)
 CORS(app)
@@ -38,49 +33,83 @@ def process_files():
     if "scopusFile" not in request.files or "wosFile" not in request.files:
         return "Arquivos de entrada necessários.", 400
 
-    start = time.perf_counter()
+    scopus_file = request.files["scopusFile"]
+    wos_file = request.files["wosFile"]
+    requisition_id = str(uuid.uuid4())
+    output_csv = os.path.join(OUTPUT_FOLDER, f"all_in_one_{requisition_id}.csv")
+    output_txt = os.path.join(OUTPUT_FOLDER, f"all_in_one_{requisition_id}.txt")
+    zip_path = os.path.join(OUTPUT_FOLDER, f"resultados_{requisition_id}.zip")
 
-    scopusFile = request.files["scopusFile"]
-    wosFile = request.files["wosFile"]
+    header_csv = [
+        ("Authors", 0),
+        ("Title", 1),
+        ("Year", 2),
+        ("Source title", 3),
+        ("DOI", 4),
+        ("Abstract", 5),
+        ("Author Keywords", 6),
+    ]
 
-    wos_df = pd.read_csv(wosFile.stream, sep="\t")
-    scopus_df = pd.read_csv(scopusFile.stream, sep=",")
+    header_txt = [
+        ("AU", 0),
+        ("TI", 1),
+        ("PY", 2),
+        ("SO", 3),
+        ("DI", 4),
+        ("AB", 5),
+        ("DE", 6),
+    ]
 
-    wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
-    scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
+    wos_to_scopus = {
+        "AU": "Authors",
+        "TI": "Title",
+        "PY": "Year",
+        "SO": "Source title",
+        "DI": "DOI",
+        "AB": "Abstract",
+        "DE": "Author Keywords",
+    }
 
-    df = merge_and_process_bibliometric_data_csv(scopus_df, wos_df)
+    scopus_to_wos = {v: k for k, v in wos_to_scopus.items()}
 
-        wos_df = analysis.keep_columns(wos_df, analysis.header_txt)
-        scopus_df = analysis.keep_columns(scopus_df, analysis.header_csv)
-
-        wos_df.to_csv(wos_path_txt, sep="\t", index=False)
-        wos_df = analysis.process_wos_data(wos_df, wos_path_txt, wos_path_csv)
-
-        scopus_df.to_csv(
-            scopus_path_csv, sep=",", quotechar='"', quoting=csv.QUOTE_ALL, index=False
+    try:
+        wos_df = pd.read_csv(
+            wos_file,
+            sep="\t",
+            quoting=csv.QUOTE_NONE,
+            on_bad_lines="skip",
+            dtype=str,
         )
-        scopus_df = analysis.process_scopus_data(scopus_path_csv, scopus_path_txt)
+        scopus_df = pd.read_csv(scopus_file, sep=",", on_bad_lines="skip", dtype=str)
 
-        analysis.merge_and_process_files_in_csv(
-            scopus_path_csv, wos_path_csv, output_csv_path
+        wos_df = st.keep_columns(wos_df, header_txt)
+        scopus_df = st.keep_columns(scopus_df, header_csv)
+
+        processed_wos_df = st.process_wos_data(wos_df, header_txt)
+        processed_scopus_df = st.process_scopus_data(scopus_df, header_csv)
+
+        merged_csv_data = st.merge_and_process(
+            processed_scopus_df,
+            processed_wos_df,
+            wos_to_scopus,
+            ["Authors", "Title", "Source title"],
         )
-        analysis.merge_and_process_files_in_txt(
-            scopus_path_txt, wos_path_txt, output_txt_path
+        merged_txt_data = st.merge_and_process(
+            processed_wos_df, processed_scopus_df, scopus_to_wos, ["AU", "TI", "SO"]
         )
+
+        merged_csv_data.to_csv(
+            output_csv, sep=",", quotechar='"', quoting=csv.QUOTE_ALL, index=False
+        )
+
+        merged_txt_data.to_csv(output_txt, sep="\t", index=False)
 
         with zipfile.ZipFile(zip_path, "w") as zipf:
-            zipf.write(output_csv_path, arcname="all_in_one.csv")
-            zipf.write(output_txt_path, arcname="all_in_one.txt")
+            zipf.write(output_csv, arcname="all_in_one.csv")
+            zipf.write(output_txt, arcname="all_in_one.txt")
 
         with open(zip_path, "rb") as f:
             data = io.BytesIO(f.read())
-
-        os.remove(zip_path)
-
-        end = time.perf_counter()
-
-        print(f"Tempo de fusão dos arquivos: {end - start}s")
 
         return send_file(
             data,
@@ -93,14 +122,7 @@ def process_files():
         return f"Erro ao unir arquivos: {str(e)}", 500
 
     finally:
-        files_to_remove = [
-            scopus_path_csv,
-            scopus_path_txt,
-            wos_path_txt,
-            wos_path_csv,
-            output_csv_path,
-            output_txt_path,
-        ]
+        files_to_remove = [output_csv, output_txt, zip_path]
 
         for f in files_to_remove:
             if os.path.exists(f):
@@ -122,28 +144,36 @@ def get_graph_format():
     if "graphType" not in request.form:
         return "Tipo de grafo não selecionado.", 400
 
-    graphFile = request.files["graphFile"]
+    graph_file = request.files["graphFile"]
     graph_type = request.form.get("graphType")
 
-    filename = secure_filename(graphFile.filename or "")
+    filename = secure_filename(graph_file.filename or "")
     _, file_extension = os.path.splitext(filename)
     file_extension = file_extension.lower()
 
-    unique_filename = f"{uuid.uuid4()}{file_extension}"
-    graph_file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
-
     try:
-        graphFile.save(graph_file_path)
-        graph_data = graph.graph_formatter(graph_file_path, file_extension, graph_type)
+        if (graph_type != "coauthorship") and (graph_type != "keywords"):
+            raise NotImplementedYet
+        if file_extension == ".txt":
+            col = "AU" if graph_type == "coauthorship" else "DE"
+            df = pd.read_csv(graph_file, sep="\t", index_col=False, on_bad_lines="skip")
+        elif file_extension == ".csv":
+            col = "Authors" if graph_type == "coauthorship" else "Author Keywords"
+            df = pd.read_csv(graph_file, sep=",", index_col=False, on_bad_lines="skip")
+        else:
+            raise ValueError
+
+        graph_data = st.graph_formatter(df, col)
+
         return graph_data
     except ValueError as e:
-        return f"Coluna não encontrada: {str(e)}", 404
+        return f"File extension not supported: {str(e)}", 404
+    except TypeError as e:
+        return f"File extension not implemented: {str(e)}", 406
+    except NotImplementedYet:
+        return f"{graph_type} not implemented yet.", 406
     except Exception as e:
-        print(str(e))
-        return f"Erro ao processar arquivo: {str(e)}", 500
-    finally:
-        if os.path.exists(graph_file_path):
-            os.remove(graph_file_path)
+        return f"Error in file process: {str(e)}", 500
 
 
 @app.route("/chart_bar", methods=["Options", "Post"])
@@ -164,19 +194,47 @@ def get_chart_format():
     _, file_extension = os.path.splitext(filename)
     file_extension = file_extension.lower()
 
-    unique_filename = f"{uuid.uuid4()}{file_extension}"
-    chart_bar_file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+    label_map = {
+        "AU": "authors",
+        "Authors": "authors",
+        "DE": "keywords",
+        "Author Keywords": "keywords",
+        "SO": "sources",
+        "Source title": "sources",
+        "PY": "years",
+        "Year": "years",
+    }
 
     try:
-        chart_bar_file.save(chart_bar_file_path)
-        chart_data = charts.chart_bar_formatter(chart_bar_file_path, file_extension)
-        return chart_data
+        if file_extension == ".txt":
+            cols = ["AU", "DE", "SO", "PY"]
+            df = pd.read_csv(
+                chart_bar_file, sep="\t", index_col=False, on_bad_lines="skip"
+            )
+        elif file_extension == ".csv":
+            cols = ["Authors", "Author Keywords", "Source title", "Year"]
+            df = pd.read_csv(
+                chart_bar_file, sep=",", index_col=False, on_bad_lines="skip"
+            )
+
+        else:
+            raise ValueError
+
+        chart_data_return = []
+        for col in cols:
+            chart_data = st.count_data(df, col)
+
+            json_key = label_map.get(col, col.lower())
+
+            chart_data_return.append({json_key: chart_data})
+
+        return chart_data_return
+
+    except ValueError as e:
+        return f"File extension not supported: {str(e)}", 404
     except Exception as e:
-        return f"Erro ao processar arquivo: {str(e)}", 500
-    finally:
-        if os.path.exists(chart_bar_file_path):
-            os.remove(chart_bar_file_path)
+        return f"Error in file process: {str(e)}", 500
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5009, debug=False)
+    app.run(host="0.0.0.0", port=5009, debug=True)
