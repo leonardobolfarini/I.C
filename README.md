@@ -1,5 +1,50 @@
-# I.C
-A script that merges two databases of different formats that
-may have duplicates that are removed and joined into two files,
-one of each source extension
+# I.C. - Sistema de Análise e Visualização Cienciométrica 🌐
 
+Este repositório contém o ecossistema completo do NBVIZ. O projeto automatiza o processamento de dados bibliométricos e gera visualizações interativas para análise de produção científica.
+
+### Você pode testá-lo acessando: https://nbviz.labs.unimar.br/
+
+## 🏗️ Estrutura do Projeto
+
+O projeto é organizado como um monorepo:
+
+- **/api**: Backend em Flask que processa os arquivos e serve os dados via JSON.
+- **/web_app**: Frontend em React com visualizações dinâmicas e dashboards.
+- **/scientometric_tools**: Biblioteca core (lib) que contém toda a lógica científica.
+
+## 🚀 Como Executar
+
+### 1. Biblioteca (Core)
+
+Para desenvolvimento local com atualizações em tempo real:
+
+```bash
+pip install -e .
+```
+
+### 2. Backend (API)
+
+```bash
+cd api
+pip install -r requirements.txt
+python main.py
+```
+
+### 3. Frontend (React)
+
+```bash
+cd web_app
+npm install
+npm start
+```
+
+## 📊 Tecnologias Utilizadas
+
+- **Python** (Pandas, Flask, Setuptools)
+- **React** (Data Visualization)
+- **Bibliometria** (Scopus & Web of Science API/Parsers)
+
+---
+
+**Pesquisador:** Leonardo Neves Bolfarini | **Orientador:** Rafael Gutierres Castanha  
+**Instituição:** Universidade de Marília (UNIMAR)
